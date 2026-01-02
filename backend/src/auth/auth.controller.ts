@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import {
   Body,
   Controller,
@@ -7,17 +8,23 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import ms, { StringValue } from 'ms';
+
+import { ApiResponse } from 'src/common/http/api-response';
+
+import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
-import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { ApiResponse } from 'src/common/http/api-response';
 import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Auth(AuthType.None)
   @Post('register')
@@ -40,11 +47,14 @@ export class AuthController {
   ) {
     const result = await this.authService.login(loginDto);
 
+    const refreshTokenExpiry =
+      this.configService.get<StringValue>('JWT_REFRESH_EXPIRY') || '7d';
+
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: ms(refreshTokenExpiry),
     });
 
     return ApiResponse.success(
@@ -58,7 +68,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Res({ passthrough: true }) res: Response, @Req() req) {
+  async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

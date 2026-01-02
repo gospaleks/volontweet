@@ -14,6 +14,7 @@ import { User } from 'src/users/user.entity';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -77,8 +78,11 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync(payload);
 
+    const refreshTokenExpiry =
+      this.configService.get<StringValue>('JWT_REFRESH_EXPIRY');
+
     const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '7d',
+      expiresIn: refreshTokenExpiry,
     });
 
     const { password: _password, ...safeUser } = user;
