@@ -5,6 +5,7 @@ import { FieldGroup } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 
 import FormInput from '@/components/form/FormInput';
+import FormPasswordInput from '@/components/form/FormPasswordInput';
 
 import {
   registerSchema,
@@ -60,11 +61,10 @@ const RegisterForm = () => {
           placeholder="e.g. john@example.com"
         />
 
-        <FormInput
+        <FormPasswordInput
           control={form.control}
           name="password"
           label="Password"
-          type="password"
         />
 
         <Button type="submit">Register</Button>

@@ -5,6 +5,7 @@ import { FieldGroup } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 
 import FormInput from '@/components/form/FormInput';
+import FormPasswordInput from '@/components/form/FormPasswordInput';
 
 import { loginSchema, type LoginSchemaType } from '../schema/login.schema';
 
@@ -31,11 +32,10 @@ const LoginForm = () => {
           placeholder="e.g. john@example.com"
         />
 
-        <FormInput
+        <FormPasswordInput
           control={form.control}
           name="password"
           label="Password"
-          type="password"
         />
 
         <Button type="submit">Login</Button>
