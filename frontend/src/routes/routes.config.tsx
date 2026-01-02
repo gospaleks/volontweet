@@ -7,10 +7,10 @@ import EmptyLayout from '@/layouts/EmptyLayout';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 
-import LoginPage from '@/pages/LoginPage';
+import LoginPage from '@/pages/Login';
+import RegisterPage from '@/pages/Register';
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import RegisterPage from '@/pages/Register';
 
 export const router = createBrowserRouter([
   {

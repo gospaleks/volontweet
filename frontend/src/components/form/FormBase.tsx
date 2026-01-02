@@ -39,9 +39,7 @@ type FormBaseProps<
   ) => ReactNode;
 };
 
-type FormControlFunc<
-  ExtraProps extends Record<string, unknown> = Record<never, never>,
-> = <
+type FormControlFunc<ExtraProps extends object = object> = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
   TTransformedValues = TFieldValues,
