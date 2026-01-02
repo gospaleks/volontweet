@@ -21,12 +21,15 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
     networks:
       - volontweet_dev
 
 volumes:
+  pgadmin_data:
   postgres_data:
 
 networks:
