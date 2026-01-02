@@ -38,7 +38,7 @@ const LoginForm = () => {
           type="password"
         />
 
-        <Button type="submit">Register</Button>
+        <Button type="submit">Login</Button>
       </FieldGroup>
     </form>
   );
