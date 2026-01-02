@@ -10,7 +10,7 @@ import PublicRoute from './PublicRoute';
 import LoginPage from '@/pages/LoginPage';
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
-import RegisterPage from '@/pages/RegisterPage';
+import RegisterPage from '@/pages/Register';
 
 export const router = createBrowserRouter([
   {
