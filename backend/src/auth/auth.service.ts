@@ -1,20 +1,34 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { hashPassword } from 'src/common/security/password';
+import { verifyPassword } from 'src/common/security/password-verification';
 import { User } from 'src/users/user.entity';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<{ id: string }> {
+  async register(registerDto: RegisterDto) {
     const existing = await this.userRepository.findOne({
-      where: [{ email: registerDto.email }, { username: registerDto.username }],
+      where: {
+        email: registerDto.email,
+        username: registerDto.username,
+      },
       select: { id: true },
     });
 
@@ -37,8 +51,43 @@ export class AuthService {
     return { id: saved.id };
   }
 
-  login(): void {
-    // TODO: implement
+  async login(loginDto: LoginDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: loginDto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const isPasswordValid = await verifyPassword(
+      loginDto.password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '7d',
+    });
+
+    const { password: _password, ...safeUser } = user;
+
+    return {
+      accessToken,
+      refreshToken,
+      user: safeUser,
+    };
   }
 
   logout(): void {

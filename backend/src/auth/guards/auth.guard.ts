@@ -1,19 +1,23 @@
+import { Request } from 'express';
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
 import { AuthType } from '../enums/auth-type.enum';
 import { AUTH_TYPE_KEY } from '../decorators/auth.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const authType = this.reflector.getAllAndOverride<AuthType>(AUTH_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -35,7 +39,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid Authorization header');
     }
 
-    // NOTE: Token validation will be implemented later.
-    return true;
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      req['user'] = payload;
+      return true;
+    } catch (err) {
+      console.log(err);
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 }

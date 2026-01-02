@@ -1,9 +1,19 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
+import type { Response } from 'express';
 import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { ApiResponse } from 'src/common/http/api-response';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,13 +33,39 @@ export class AuthController {
 
   @Auth(AuthType.None)
   @Post('login')
-  login(): void {
-    return this.authService.login();
+  @HttpCode(HttpStatus.OK)
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(loginDto);
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return ApiResponse.success(
+      {
+        accessToken: result.accessToken,
+        user: result.user,
+      },
+      'Login successful',
+    );
   }
 
   @Post('logout')
-  logout(): void {
-    return this.authService.logout();
+  @HttpCode(HttpStatus.OK)
+  async logout(@Res({ passthrough: true }) res: Response, @Req() req) {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return ApiResponse.success(null, 'Logout successful');
   }
 
   @Post('refresh')
