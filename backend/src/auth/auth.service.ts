@@ -94,11 +94,38 @@ export class AuthService {
     };
   }
 
-  logout(): void {
-    // TODO: implement
-  }
+  async refresh(refreshToken?: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
 
-  refresh(): void {
-    // TODO: implement
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const newPayload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
+
+    const accessToken = await this.jwtService.signAsync(newPayload);
+    const { password: _password, ...safeUser } = user;
+
+    return {
+      accessToken,
+      user: safeUser,
+    };
   }
 }

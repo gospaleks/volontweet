@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import type { Response } from 'express';
 import {
   Body,
@@ -12,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
 
 import { ApiResponse } from 'src/common/http/api-response';
+
+import { AUTH_COOKIES } from './constants/auth.constants';
 
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
@@ -50,7 +53,7 @@ export class AuthController {
     const refreshTokenExpiry =
       this.configService.get<StringValue>('JWT_REFRESH_EXPIRY') || '7d';
 
-    res.cookie('refreshToken', result.refreshToken, {
+    res.cookie(AUTH_COOKIES.REFRESH_TOKEN, result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -69,7 +72,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refreshToken', {
+    res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -78,8 +81,33 @@ export class AuthController {
     return ApiResponse.success(null, 'Logout successful');
   }
 
+  @Auth(AuthType.None)
   @Post('refresh')
-  refresh(): void {
-    return this.authService.refresh();
+  @HttpCode(HttpStatus.OK)
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.[AUTH_COOKIES.REFRESH_TOKEN];
+
+    try {
+      const result = await this.authService.refresh(refreshToken);
+
+      return ApiResponse.success(
+        {
+          accessToken: result.accessToken,
+          user: result.user,
+        },
+        'Token refreshed successfully',
+      );
+    } catch (err) {
+      res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      throw err;
+    }
   }
 }
