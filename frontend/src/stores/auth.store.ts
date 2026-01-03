@@ -31,7 +31,6 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ accessToken: null, user: null });
-        window.location.href = '/login';
       },
     }),
     {
@@ -44,3 +43,17 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+export const useAuthUser = () => useAuthStore((state) => state.user);
+
+export const useAccessToken = () => useAuthStore((state) => state.accessToken);
+
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => Boolean(state.accessToken));
+
+export const useAuthActions = () =>
+  useAuthStore((state) => ({
+    setAccessToken: state.setAccessToken,
+    setUser: state.setUser,
+    logout: state.logout,
+  }));

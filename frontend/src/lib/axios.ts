@@ -37,7 +37,7 @@ const notifyRefreshWaitlist = (token: string | null) => {
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  async (error: AxiosError<ApiErrorResponse>) => {
     const originalRequest = error?.config as
       | (typeof error.config & { _retry?: boolean })
       | undefined;
