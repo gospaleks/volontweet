@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Neo4jService } from 'nest-neo4j';
 
 import { hashPassword } from 'src/common/security/password';
 import { verifyPassword } from 'src/common/security/password-verification';
@@ -21,6 +22,7 @@ import { StringValue } from 'ms';
 export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly neo4jService: Neo4jService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -46,6 +48,21 @@ export class AuthService {
     });
 
     const saved = await this.userRepository.save(user);
+
+    try {
+      await this.neo4jService.write(
+        `CREATE (u:User {id: $id, username: $username, email: $email})`,
+        {
+          id: saved.id,
+          username: saved.username,
+          email: saved.email,
+        },
+      );
+    } catch (error) {
+      console.log(error);
+      await this.userRepository.delete({ id: saved.id });
+      throw new BadRequestException('Registration failed, please try again');
+    }
 
     return { id: saved.id };
   }
