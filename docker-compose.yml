@@ -28,9 +28,25 @@ services:
     networks:
       - volontweet_dev
 
+  neo4j:
+    image: neo4j:latest
+    container_name: volontweet-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=${NEO4J_AUTH:-neo4j/neo4jpassword}
+    volumes:
+      - neo4j_data:/var/lib/neo4j/data
+      - neo4j_logs:/var/lib/neo4j/logs
+    networks:
+      - volontweet_dev
+
 volumes:
   pgadmin_data:
   postgres_data:
+  neo4j_data:
+  neo4j_logs:
 
 networks:
   volontweet_dev:

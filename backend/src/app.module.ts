@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Neo4jModule } from 'nest-neo4j';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+
 import { createTypeOrmOptions } from './database/typeorm.config';
+import { createNeo4jOptions } from './database/neo4j.config';
 
 @Module({
   imports: [
@@ -16,6 +20,11 @@ import { createTypeOrmOptions } from './database/typeorm.config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         createTypeOrmOptions(configService),
+    }),
+    Neo4jModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        createNeo4jOptions(configService),
     }),
     AuthModule,
   ],
