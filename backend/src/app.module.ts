@@ -3,9 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Neo4jModule } from 'nest-neo4j';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './redis/redis.module';
+
+import { AppController } from './app.controller';
+
+import { AppService } from './app.service';
 
 import { createTypeOrmOptions } from './database/typeorm.config';
 import { createNeo4jOptions } from './database/neo4j.config';
@@ -27,6 +30,7 @@ import { createNeo4jOptions } from './database/neo4j.config';
         createNeo4jOptions(configService),
     }),
     AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
