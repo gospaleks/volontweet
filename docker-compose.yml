@@ -42,11 +42,22 @@ services:
     networks:
       - volontweet_dev
 
+  redis:
+    image: redis:latest
+    container_name: volontweet-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/var/lib/redis/data
+    networks:
+      - volontweet_dev
+
 volumes:
   pgadmin_data:
   postgres_data:
   neo4j_data:
   neo4j_logs:
+  redis_data:
 
 networks:
   volontweet_dev:
