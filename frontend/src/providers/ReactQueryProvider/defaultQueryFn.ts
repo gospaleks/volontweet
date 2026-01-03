@@ -1,6 +1,6 @@
 import type { QueryFunctionContext, QueryKey } from '@tanstack/react-query';
 
-import api, { type ApiSuccessResponse } from '@/lib/axios';
+import api from '@/lib/axios';
 
 type QueryParams = Record<string, string>;
 
@@ -56,6 +56,6 @@ export const defaultQueryFn = async <TData = unknown>({
   }
 
   const url = buildUrl(apiPath, normalizeQueryParams(queryParams));
-  const response = await api.get<ApiSuccessResponse<TData>>(url, { signal });
-  return response.data.data;
+  const response = await api.get<TData>(url, { signal });
+  return response.data;
 };

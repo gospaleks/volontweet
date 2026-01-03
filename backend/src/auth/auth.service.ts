@@ -26,10 +26,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     const existing = await this.userRepository.findOne({
-      where: {
-        email: registerDto.email,
-        username: registerDto.username,
-      },
+      where: [{ email: registerDto.email }, { username: registerDto.username }],
       select: { id: true },
     });
 

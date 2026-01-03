@@ -1,16 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 
 import { type AuthUser, useAuthStore } from '@/stores/auth.store';
 
-type ApiSuccessResponse<T> = {
-  success: true;
-  message?: string;
-  data: T;
+export type ApiErrorResponse = {
+  message: string | string[];
+  error: string;
+  statusCode: number;
 };
-
-export type { ApiSuccessResponse };
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
@@ -80,12 +78,13 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshResponse = await api.post<
-        ApiSuccessResponse<{ accessToken: string; user: AuthUser }>
-      >(API_ENDPOINTS.REFRESH_TOKEN);
+      const refreshResponse = await api.post<{
+        accessToken: string;
+        user: AuthUser;
+      }>(API_ENDPOINTS.REFRESH_TOKEN);
 
-      const newAccessToken = refreshResponse.data?.data?.accessToken;
-      const refreshedUser = refreshResponse.data?.data?.user;
+      const newAccessToken = refreshResponse.data?.accessToken;
+      const refreshedUser = refreshResponse.data?.user;
 
       if (!newAccessToken) {
         throw new Error('Missing access token in refresh response');
@@ -110,5 +109,22 @@ api.interceptors.response.use(
     }
   },
 );
+
+// Handle API errors globally
+export function getApiErrorMessage(error: unknown): string {
+  if (error instanceof AxiosError && error.response?.data) {
+    const data = error.response.data as ApiErrorResponse;
+
+    if (Array.isArray(data.message)) {
+      return data.message.join(', ');
+    }
+
+    if (typeof data.message === 'string') {
+      return data.message;
+    }
+  }
+
+  return 'Unexpected error occurred';
+}
 
 export default api;

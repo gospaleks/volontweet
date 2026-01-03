@@ -1,18 +1,25 @@
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 
-import { FieldGroup } from '@/components/ui/field';
-import { Button } from '@/components/ui/button';
-
-import FormInput from '@/components/form/FormInput';
-import FormPasswordInput from '@/components/form/FormPasswordInput';
+import { useRegisterMutation } from '@/hooks/auth/useRegisterMutation';
 
 import {
   registerSchema,
   type RegisterSchemaType,
 } from '../schema/register.schema';
 
+import { FieldGroup } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
+
+import FormInput from '@/components/form/FormInput';
+import FormPasswordInput from '@/components/form/FormPasswordInput';
+import { Spinner } from '@/components/ui/spinner';
+
 const RegisterForm = () => {
+  const navigate = useNavigate();
+
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -24,8 +31,15 @@ const RegisterForm = () => {
     },
   });
 
-  async function onSubmit(data: RegisterSchemaType) {
-    console.log(data);
+  const { mutate, isPending } = useRegisterMutation();
+
+  function onSubmit(data: RegisterSchemaType) {
+    mutate(data, {
+      onSuccess: () => {
+        navigate('/login');
+        toast.success('Registration successful! Please log in.');
+      },
+    });
   }
 
   return (
@@ -67,7 +81,9 @@ const RegisterForm = () => {
           label="Password"
         />
 
-        <Button type="submit">Register</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? <Spinner /> : 'Register'}
+        </Button>
       </FieldGroup>
     </form>
   );
