@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 
 import { ThemeProvider } from '@/providers/ThemeProvider/Theme.provider';
-import ReactQueryProvider from '@/providers/ReactQuery.provider';
+import ReactQueryProvider from '@/providers/ReactQueryProvider/ReactQuery.provider';
 
 import { router } from '@/routes/routes.config.tsx';
 
