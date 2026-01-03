@@ -12,10 +12,10 @@ import {
 
 import { FieldGroup } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 import FormInput from '@/components/form/FormInput';
 import FormPasswordInput from '@/components/form/FormPasswordInput';
-import { Spinner } from '@/components/ui/spinner';
 
 const RegisterForm = () => {
   const navigate = useNavigate();

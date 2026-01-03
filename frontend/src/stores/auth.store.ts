@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 
 export type AuthUser = {
   id: string;
@@ -52,8 +53,10 @@ export const useIsAuthenticated = () =>
   useAuthStore((state) => Boolean(state.accessToken));
 
 export const useAuthActions = () =>
-  useAuthStore((state) => ({
-    setAccessToken: state.setAccessToken,
-    setUser: state.setUser,
-    logout: state.logout,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      setAccessToken: state.setAccessToken,
+      setUser: state.setUser,
+      logout: state.logout,
+    })),
+  );
