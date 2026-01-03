@@ -12,8 +12,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
 
-import { ApiResponse } from 'src/common/http/api-response';
-
 import { AUTH_COOKIES } from './constants/auth.constants';
 
 import { AuthService } from './auth.service';
@@ -35,10 +33,9 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto) {
     const result = await this.authService.register(registerDto);
 
-    return ApiResponse.success(
-      { userId: result.id },
-      'User registered successfully',
-    );
+    return {
+      userId: result.id,
+    };
   }
 
   @Auth(AuthType.None)
@@ -60,13 +57,10 @@ export class AuthController {
       maxAge: ms(refreshTokenExpiry),
     });
 
-    return ApiResponse.success(
-      {
-        accessToken: result.accessToken,
-        user: result.user,
-      },
-      'Login successful',
-    );
+    return {
+      accessToken: result.accessToken,
+      user: result.user,
+    };
   }
 
   @Post('logout')
@@ -78,7 +72,7 @@ export class AuthController {
       sameSite: 'strict',
     });
 
-    return ApiResponse.success(null, 'Logout successful');
+    return null;
   }
 
   @Auth(AuthType.None)
@@ -91,15 +85,7 @@ export class AuthController {
     const refreshToken = req.cookies?.[AUTH_COOKIES.REFRESH_TOKEN];
 
     try {
-      const result = await this.authService.refresh(refreshToken);
-
-      return ApiResponse.success(
-        {
-          accessToken: result.accessToken,
-          user: result.user,
-        },
-        'Token refreshed successfully',
-      );
+      return await this.authService.refresh(refreshToken);
     } catch (err) {
       res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN, {
         httpOnly: true,

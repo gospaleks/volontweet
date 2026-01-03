@@ -1,8 +1,16 @@
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
+
+import { useIsAuthenticated } from '@/stores/auth.store';
 
 import ThemeToggle from '@/components/ThemeToggle';
 
 const AuthLayout = () => {
+  const isAuthenticated = useIsAuthenticated();
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-between">
       <header className="flex w-full items-center justify-center border-b">
