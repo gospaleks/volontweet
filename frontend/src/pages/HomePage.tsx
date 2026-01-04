@@ -18,7 +18,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="max-w-lg">
+    <div className="border-b">
       <TweetEditor onSubmit={handleTweetSubmit} isPending={isPending} />
     </div>
   );

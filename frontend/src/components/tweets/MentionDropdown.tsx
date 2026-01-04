@@ -41,16 +41,21 @@ const MentionDropdown = ({
   const itemRefsByValue = useRef<Record<string, HTMLDivElement | null>>({});
   const debouncedQuery = useDebounce(query);
 
+  const isUserTrigger = trigger === '@' && debouncedQuery.length > 0;
+  const isHashtagTrigger = trigger === '#';
+
   // Fetch hashtags suggestions
   const { data: hashtagsSuggestions, isFetching: isFetchingHashtags } =
     useQuery<Hashtag[]>({
-      queryKey: [
-        API_ENDPOINTS.TRENDING_HASHTAGS,
-        {
-          q: debouncedQuery.length > 0 ? debouncedQuery : undefined,
-        },
-      ],
-      enabled: trigger === '#',
+      queryKey: isHashtagTrigger
+        ? [
+            API_ENDPOINTS.TRENDING_HASHTAGS,
+            {
+              q: debouncedQuery,
+            },
+          ]
+        : [],
+      enabled: isHashtagTrigger,
       placeholderData: keepPreviousData,
     });
 
@@ -58,8 +63,10 @@ const MentionDropdown = ({
   const { data: userSuggestions, isFetching: isFetchingUsers } = useQuery<
     AuthUser[]
   >({
-    queryKey: [API_ENDPOINTS.USER_SUGGESTIONS, { q: debouncedQuery }],
-    enabled: trigger === '@' && debouncedQuery.length > 0,
+    queryKey: isUserTrigger
+      ? [API_ENDPOINTS.USER_SUGGESTIONS, { q: debouncedQuery }]
+      : [],
+    enabled: isUserTrigger,
     placeholderData: keepPreviousData,
   });
 

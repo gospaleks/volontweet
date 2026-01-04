@@ -1,19 +1,27 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Moon02Icon, SunIcon } from '@hugeicons/core-free-icons';
+import {
+  ComputerIcon,
+  Moon02Icon,
+  PaintBoardIcon,
+  SunIcon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons';
 
-import { Button } from '@/components/ui/button';
+import { useTheme } from '@/hooks/useTheme';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
-import { useTheme } from '@/hooks/useTheme';
-
-const ThemeToggle = () => {
-  const { setTheme } = useTheme();
-
+export const ThemeToggle = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -32,17 +40,54 @@ const ThemeToggle = () => {
         }
       ></DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>
-          System
-        </DropdownMenuItem>
+        <ThemeMenuItems />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-export default ThemeToggle;
+
+export const ThemeDropdownMenuItem = () => {
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        <HugeiconsIcon icon={PaintBoardIcon} />
+        Theme
+      </DropdownMenuSubTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuSubContent align="end">
+          <ThemeMenuItems />
+        </DropdownMenuSubContent>
+      </DropdownMenuPortal>
+    </DropdownMenuSub>
+  );
+};
+
+const ThemeMenuItems = () => {
+  const { setTheme, theme } = useTheme();
+
+  return (
+    <>
+      <DropdownMenuItem onClick={() => setTheme('light')}>
+        <HugeiconsIcon icon={SunIcon} />
+        Light
+        {theme === 'light' && (
+          <HugeiconsIcon icon={Tick02Icon} className="ml-auto" />
+        )}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setTheme('dark')}>
+        <HugeiconsIcon icon={Moon02Icon} />
+        Dark
+        {theme === 'dark' && (
+          <HugeiconsIcon icon={Tick02Icon} className="ml-auto" />
+        )}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setTheme('system')}>
+        <HugeiconsIcon icon={ComputerIcon} />
+        System
+        {theme === 'system' && (
+          <HugeiconsIcon icon={Tick02Icon} className="ml-auto" />
+        )}
+      </DropdownMenuItem>
+    </>
+  );
+};
