@@ -1,15 +1,15 @@
 import { Outlet } from 'react-router-dom';
 
-import ThemeToggle from '@/components/ThemeToggle';
+import Sidebar from '@/components/sidebar/Sidebar';
 
 const AppLayout = () => {
   return (
-    <div className="container mx-auto flex min-h-screen">
-      <aside className="w-64 border-r p-4">
-        <ThemeToggle />
+    <div className="mx-auto flex min-h-screen max-w-7xl">
+      <aside className="border-r">
+        <Sidebar />
       </aside>
 
-      <main className="flex-1">
+      <main className="flex-1 p-4">
         <Outlet />
       </main>
     </div>
