@@ -12,7 +12,7 @@ import { Neo4jService } from 'nest-neo4j';
 
 import { hashPassword } from 'src/common/security/password';
 import { verifyPassword } from 'src/common/security/password-verification';
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/entity/user.entity';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
