@@ -21,7 +21,7 @@ const sidebarLinks = [
   { label: 'Profile', to: '/profile', icon: UserIcon },
 ];
 
-const Sidebar = () => {
+const LeftSidebar = () => {
   return (
     <div className="flex h-full flex-col gap-4 p-4">
       <Logo size={48} className="ml-3" />
@@ -54,4 +54,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default LeftSidebar;

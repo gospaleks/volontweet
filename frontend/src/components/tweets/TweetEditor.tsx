@@ -153,7 +153,7 @@ const TweetEditor = ({
     !content.trim() || content.length > MAX_TWEET_LENGTH || isPending;
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex w-full flex-col gap-4 p-4">
       <InputGroup>
         <InputGroupTextarea
           ref={textareaRef}
