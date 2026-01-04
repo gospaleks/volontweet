@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import { useIsAuthenticated } from '@/stores/auth.store';
 
-import ThemeToggle from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import Logo from '@/components/Logo';
 
 const AuthLayout = () => {

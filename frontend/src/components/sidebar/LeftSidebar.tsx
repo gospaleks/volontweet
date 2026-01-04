@@ -12,7 +12,8 @@ import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
 import Logo from '@/components/Logo';
-import LogoutButton from '@/components/LogoutButton';
+
+import UserAvatar from './UserAvatar';
 
 const sidebarLinks = [
   { label: 'Home', to: '/', icon: HomeIcon },
@@ -48,7 +49,7 @@ const LeftSidebar = () => {
       </nav>
 
       <div className="mt-auto">
-        <LogoutButton />
+        <UserAvatar />
       </div>
     </div>
   );

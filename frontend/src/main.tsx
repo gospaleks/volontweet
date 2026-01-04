@@ -17,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
     <ReactQueryProvider>
       <ThemeProvider>
         <RouterProvider router={router} />
-        <Toaster richColors closeButton position="bottom-right" />
+        <Toaster richColors closeButton position="top-right" />
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </ThemeProvider>
     </ReactQueryProvider>
