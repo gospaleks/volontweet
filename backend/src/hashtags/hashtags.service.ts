@@ -19,8 +19,31 @@ export class HashtagsService {
     await this.warmupHashtags();
   }
 
-  async getTrending(limit: number = 5) {
+  async getTrending(
+    limit: number = 10,
+    search?: string,
+  ): Promise<HashtagWithCountDto[]> {
     try {
+      if (search) {
+        const rawResults = await this.redisService.zscan(
+          'hashtags:trending',
+          `${search.toLowerCase()}*`,
+          100,
+        );
+
+        const formatted: HashtagWithCountDto[] = [];
+
+        // ZSCAN returns in format: [tag, score, tag, score...]
+        for (let i = 0; i < rawResults.length; i += 2) {
+          formatted.push({
+            tag: rawResults[i],
+            count: parseInt(rawResults[i + 1], 10) || 0,
+          });
+        }
+
+        return formatted.sort((a, b) => b.count - a.count).slice(0, limit);
+      }
+
       const rawResult = await this.redisService.zrevrange(
         'hashtags:trending',
         0,
@@ -30,18 +53,17 @@ export class HashtagsService {
 
       if (!rawResult) return [];
 
-      const formattedHashtags = [] as HashtagWithCountDto[];
-
+      const formatted: HashtagWithCountDto[] = [];
       for (let i = 0; i < rawResult.length; i += 2) {
-        formattedHashtags.push({
+        formatted.push({
           tag: rawResult[i],
           count: parseInt(rawResult[i + 1], 10),
         });
       }
 
-      return formattedHashtags;
+      return formatted;
     } catch (error) {
-      console.error('Redis trending hashtags retrieval error:', error);
+      console.error('Hashtags retrieval error:', error);
       return [];
     }
   }

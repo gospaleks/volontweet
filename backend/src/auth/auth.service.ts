@@ -51,11 +51,13 @@ export class AuthService {
 
     try {
       await this.neo4jService.write(
-        `CREATE (u:User {id: $id, username: $username, email: $email})`,
+        `CREATE (u:User {id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName})`,
         {
           id: saved.id,
           username: saved.username,
           email: saved.email,
+          firstName: saved.firstName,
+          lastName: saved.lastName,
         },
       );
     } catch (error) {

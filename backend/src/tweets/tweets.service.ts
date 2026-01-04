@@ -46,27 +46,31 @@ export class TweetsService {
         // 3. Connect author with tweet
         CREATE (author)-[:POSTED]->(t)
 
-        // 4. Process Mentions (@) - Using UNWIND for precision
+        // 4. Process Mentions (@) - Safe variant without breaking the query
         WITH t, author
-        UNWIND $userMentions AS mUsername
-        OPTIONAL MATCH (mentioned:User {username: mUsername})
-        // Connect only if user exists
-        FOREACH (u IN CASE WHEN mentioned IS NOT NULL THEN [mentioned] ELSE [] END |
-          MERGE (t)-[:MENTIONS]->(u)
+        FOREACH (mUsername IN $userMentions |
+          MERGE (mentioned:User {username: mUsername})
+          MERGE (t)-[:MENTIONS]->(mentioned)
         )
 
-        // 5. Process Hashtags (#) - Returning one line before UNWIND
+        // 5. Process Hashtags (#) - Using CASE to prevent UNWIND from "killing" the query
         WITH t, author
-        UNWIND $hashtags AS tagName
+        UNWIND (CASE WHEN $hashtags = [] THEN [null] ELSE $hashtags END) AS tagName
+        WITH t, author, tagName
+        WHERE tagName IS NOT NULL
         MERGE (tag:Hashtag {name: tagName})
         MERGE (t)-[:TAGGED_WITH]->(tag)
 
+        // 6. Final return - again WITH to ensure a single row
+        WITH DISTINCT t, author
         RETURN t {
           .*,
           author: {
             id: author.id,
             email: author.email,
-            username: author.username
+            username: author.username,
+            firstName: author.firstName,
+            lastName: author.lastName
           },
           stats: {
             likesCount: 0,

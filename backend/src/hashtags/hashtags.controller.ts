@@ -1,4 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  DefaultValuePipe,
+  Get,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 
 import { HashtagsService } from './hashtags.service';
 
@@ -7,8 +13,10 @@ export class HashtagsController {
   constructor(private readonly hashtagsService: HashtagsService) {}
 
   @Get('trending')
-  async getTrending(@Query('limit') limit?: string) {
-    const parsedLimit = limit ? parseInt(limit, 10) : 10;
-    return await this.hashtagsService.getTrending(parsedLimit);
+  getTrending(
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('q') search?: string,
+  ) {
+    return this.hashtagsService.getTrending(limit, search);
   }
 }

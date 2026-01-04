@@ -106,6 +106,28 @@ export class RedisService implements OnModuleDestroy {
       : this.publisher.incrby(key, amount);
   }
 
+  async zscan(
+    key: RedisKey,
+    pattern: string,
+    count: number = 100,
+  ): Promise<string[]> {
+    // ZSCAN returns [cursor, [element, score, element, score...]]
+    const [, results] = await this.publisher.zscan(
+      key,
+      0,
+      'MATCH',
+      pattern,
+      'COUNT',
+      count,
+    );
+
+    return results;
+  }
+
+  async zscore(key: RedisKey, member: string): Promise<string | null> {
+    return this.publisher.zscore(key, member);
+  }
+
   async zadd(
     key: RedisKey,
     member: string,
