@@ -106,6 +106,36 @@ export class RedisService implements OnModuleDestroy {
       : this.publisher.incrby(key, amount);
   }
 
+  async zscan(
+    key: RedisKey,
+    pattern: string,
+    count: number = 100,
+  ): Promise<string[]> {
+    // ZSCAN returns [cursor, [element, score, element, score...]]
+    const [, results] = await this.publisher.zscan(
+      key,
+      0,
+      'MATCH',
+      pattern,
+      'COUNT',
+      count,
+    );
+
+    return results;
+  }
+
+  async zscore(key: RedisKey, member: string): Promise<string | null> {
+    return this.publisher.zscore(key, member);
+  }
+
+  async zadd(
+    key: RedisKey,
+    member: string,
+    score: number,
+  ): Promise<number | string> {
+    return this.publisher.zadd(key, score, member);
+  }
+
   async zincrby(key: RedisKey, member: string, increment = 1): Promise<string> {
     return this.publisher.zincrby(key, increment, member);
   }
@@ -114,7 +144,11 @@ export class RedisService implements OnModuleDestroy {
     key: RedisKey,
     start: number,
     stop: number,
+    withScores: boolean = false,
   ): Promise<string[]> {
+    if (withScores) {
+      return this.publisher.zrevrange(key, start, stop, 'WITHSCORES');
+    }
     return this.publisher.zrevrange(key, start, stop);
   }
 

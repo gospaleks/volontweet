@@ -8,8 +8,6 @@ export type AuthUser = {
   lastName: string;
   email: string;
   username: string;
-  createdAt: string;
-  updatedAt: string;
 };
 
 type AuthState = {

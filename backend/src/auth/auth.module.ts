@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StringValue } from 'ms';
 
-import { User } from '../users/user.entity';
+import { User } from '../users/entity/user.entity';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';

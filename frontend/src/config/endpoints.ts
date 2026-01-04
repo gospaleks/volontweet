@@ -5,4 +5,10 @@ export const API_ENDPOINTS = {
   REGISTER: `${auth}/register`,
   REFRESH_TOKEN: `${auth}/refresh`,
   LOGOUT: `${auth}/logout`,
+
+  TWEETS: '/tweets',
+
+  TRENDING_HASHTAGS: '/hashtags/trending',
+
+  USER_SUGGESTIONS: '/users/suggestions',
 };

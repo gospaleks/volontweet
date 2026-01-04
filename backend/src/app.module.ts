@@ -5,6 +5,9 @@ import { Neo4jModule } from 'nest-neo4j';
 
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
+import { UsersModule } from './users/users.module';
+import { TweetsModule } from './tweets/tweets.module';
+import { HashtagsModule } from './hashtags/hashtags.module';
 
 import { AppController } from './app.controller';
 
@@ -29,8 +32,11 @@ import { createNeo4jOptions } from './database/neo4j.config';
       useFactory: (configService: ConfigService) =>
         createNeo4jOptions(configService),
     }),
-    AuthModule,
     RedisModule,
+    AuthModule,
+    UsersModule,
+    TweetsModule,
+    HashtagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
