@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { Neo4jService } from 'nest-neo4j/dist';
+import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
 
 import { CreateTweetDto } from './dto/create-tweet.dto';
