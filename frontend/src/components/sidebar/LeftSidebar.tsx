@@ -9,6 +9,8 @@ import {
 
 import { cn } from '@/lib/utils';
 
+import { useAuthUser } from '@/stores/auth.store';
+
 import { buttonVariants } from '@/components/ui/button';
 
 import Logo from '@/components/Logo';
@@ -19,10 +21,12 @@ const sidebarLinks = [
   { label: 'Home', to: '/', icon: HomeIcon },
   { label: 'Notifications', to: '/notifications', icon: Notification02Icon },
   { label: 'Bookmarks', to: '/bookmarks', icon: AllBookmarkIcon },
-  { label: 'Profile', to: '/profile', icon: UserIcon },
+  { label: 'Profile', to: '/users', icon: UserIcon },
 ];
 
 const LeftSidebar = () => {
+  const user = useAuthUser();
+
   return (
     <div className="flex h-full flex-col gap-4 p-4">
       <Logo size={48} className="ml-3" />
@@ -30,7 +34,9 @@ const LeftSidebar = () => {
       <nav className="flex flex-col gap-2">
         {sidebarLinks.map((link) => (
           <NavLink
-            to={link.to}
+            to={
+              link.to === '/users' && user ? `/users/${user.username}` : link.to
+            }
             key={link.label}
             className={({ isActive }) =>
               cn(

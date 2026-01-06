@@ -8,13 +8,14 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import H3 from '@/components/ui/typography/H3';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Props = {
-  title: string;
+  children: React.ReactNode;
+  isLoading?: boolean;
 };
 
-const Header = ({ title }: Props) => {
+const Header = ({ children, isLoading }: Props) => {
   const navigate = useNavigate();
 
   return (
@@ -30,7 +31,7 @@ const Header = ({ title }: Props) => {
         <TooltipContent>Back</TooltipContent>
       </Tooltip>
 
-      <H3>{title}</H3>
+      {isLoading ? <Skeleton className="h-6 w-32" /> : children}
     </div>
   );
 };

@@ -12,6 +12,7 @@ import RegisterPage from '@/pages/Register';
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import UsersPage from '@/pages/UsersPage';
+import UserDetailsPage from '@/pages/UserDetails';
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <HomePage /> },
           { path: '/users', element: <UsersPage /> },
+          { path: '/users/:username', element: <UserDetailsPage /> },
         ],
       },
     ],

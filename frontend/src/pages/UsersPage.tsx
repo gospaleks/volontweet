@@ -10,6 +10,7 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Spinner } from '@/components/ui/spinner';
 import Header from '@/components/Header';
 import RecommendedUser from '@/components/RecommendedUser/RecommendedUser';
+import H3 from '@/components/ui/typography/H3';
 
 const UsersPage = () => {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -31,7 +32,9 @@ const UsersPage = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Header title="Suggested for you" />
+      <Header>
+        <H3>Suggested for you</H3>
+      </Header>
 
       {isLoading ? (
         <div className="flex justify-center px-4">
