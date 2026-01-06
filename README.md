@@ -2,30 +2,25 @@
 
 ## Dev setup
 
-### Start PostgreSQL (Docker)
+### Databases (Docker)
 
-- Optionally create a local `.env` from `.env.example` and adjust credentials.
-- Start DB:
+- Start:
   - `docker compose up -d`
-- Stop DB:
+- Stop:
   - `docker compose down`
 
-Connection defaults:
-
-- Host: `localhost`
-- Port: `5432`
-- Database: `volontweet`
-- User: `postgres`
-- Password: `postgres`
-
-### Run backend locally
+### Run backend
 
 - `cd backend`
 - `npm install`
 - `npm run start:dev`
 
-### Run frontend locally
+### Run frontend
 
 - `cd frontend`
 - `npm install`
 - `npm run dev`
+
+### VSCode Extensions
+
+- `Neo4j for VS Code`

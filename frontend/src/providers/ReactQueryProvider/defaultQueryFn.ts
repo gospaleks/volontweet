@@ -1,5 +1,3 @@
-import type { QueryFunctionContext, QueryKey } from '@tanstack/react-query';
-
 import api from '@/lib/axios';
 
 type QueryParams = Record<string, string>;
@@ -46,16 +44,27 @@ const buildUrl = (apiPath: string, params?: QueryParams) => {
 export const defaultQueryFn = async <TData = unknown>({
   queryKey,
   signal,
-}: QueryFunctionContext<QueryKey>): Promise<TData> => {
-  const [apiPath, queryParams] = queryKey as unknown as [unknown, unknown];
+  pageParam,
+}: {
+  queryKey: readonly unknown[];
+  signal: AbortSignal;
+  pageParam?: unknown;
+}): Promise<TData> => {
+  const [apiPath, queryParams] = queryKey;
 
   if (typeof apiPath !== 'string' || apiPath.length === 0) {
     throw new Error(
-      'defaultQueryFn expects queryKey to be [apiPath: string, queryParams?: Record<string, string> | [Record<string, string>]]',
+      'defaultQueryFn expects queryKey to be [apiPath: string, queryParams?: Record<string, string>]',
     );
   }
 
-  const url = buildUrl(apiPath, normalizeQueryParams(queryParams));
+  const normalizedParams = {
+    ...normalizeQueryParams(queryParams),
+    ...(pageParam !== undefined ? { page: String(pageParam) } : {}),
+  };
+
+  const url = buildUrl(apiPath, normalizedParams);
   const response = await api.get<TData>(url, { signal });
+
   return response.data;
 };

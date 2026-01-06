@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { Neo4jService } from 'nest-neo4j/dist';
+import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
 
 import { HashtagWithCountDto } from './dto/hashtag-with-count.dto';

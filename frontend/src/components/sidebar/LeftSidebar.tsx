@@ -31,6 +31,7 @@ const LeftSidebar = () => {
         {sidebarLinks.map((link) => (
           <NavLink
             to={link.to}
+            key={link.label}
             className={({ isActive }) =>
               cn(
                 buttonVariants({
