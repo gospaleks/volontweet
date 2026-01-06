@@ -44,4 +44,13 @@ export class UsersController {
     const user = request['user'] as JwtPayload;
     return this.usersService.toggleFollow(user.sub, targetUserId);
   }
+
+  @Get(':username')
+  getUserByUsername(
+    @Req() request: Request,
+    @Param('username') username: string,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.usersService.getUserByUsername(user.sub, username);
+  }
 }

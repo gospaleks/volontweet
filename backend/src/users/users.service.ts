@@ -12,6 +12,7 @@ import { User } from './entity/user.entity';
 
 import { GET_RECOMMENDED_USERS_QUERY } from './queries/recommendations.query';
 import { TOGGLE_FOLLOW_USER_QUERY } from './queries/toggle-follow.query';
+import { GET_USER_DETAILS_QUERY } from './queries/get-user-details.query';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,26 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly neo4jService: Neo4jService,
   ) {}
+
+  async getUserByUsername(currentUserId: string, username: string) {
+    const result = await this.neo4jService.read(GET_USER_DETAILS_QUERY, {
+      username,
+      currentUserId,
+    });
+
+    if (result.records.length === 0) {
+      throw new NotFoundException('User not found');
+    }
+
+    const record = result.records[0].get('user');
+
+    return {
+      ...record,
+      tweetsCount: this.neo4jService.int(record.tweetsCount).toNumber(),
+      followersCount: this.neo4jService.int(record.followersCount).toNumber(),
+      followingCount: this.neo4jService.int(record.followingCount).toNumber(),
+    };
+  }
 
   async getUsersSuggestions(limit: number, search: string) {
     return this.userRepository.find({
