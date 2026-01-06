@@ -13,4 +13,5 @@ export const API_ENDPOINTS = {
   USER_SUGGESTIONS: '/users/suggestions',
   USER_RECOMMENDATIONS: '/users/recommendations', // Infinite scroll (queryParams: page, size)
   TOGGLE_FOLLOW_USER: (userId: string) => `/users/${userId}/follow`,
+  USER_DETAILS: (username: string) => `/users/${username}`,
 };
