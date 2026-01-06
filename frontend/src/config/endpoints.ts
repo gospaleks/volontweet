@@ -11,4 +11,6 @@ export const API_ENDPOINTS = {
   TRENDING_HASHTAGS: '/hashtags/trending',
 
   USER_SUGGESTIONS: '/users/suggestions',
+  USER_RECOMMENDATIONS: '/users/recommendations', // Infinite scroll (queryParams: page, size)
+  TOGGLE_FOLLOW_USER: (userId: string) => `/users/${userId}/follow`,
 };
