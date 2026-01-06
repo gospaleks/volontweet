@@ -11,9 +11,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type RecommendedUserProps = {
   user: UserRecommendation;
+  showBio?: boolean;
 };
 
-const RecommendedUser = ({ user }: RecommendedUserProps) => {
+const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
   const [isFollowing, setIsFollowing] = useState(false);
 
   const { mutate, isPending } = useToggleFollowUser(user.id);
@@ -35,7 +36,7 @@ const RecommendedUser = ({ user }: RecommendedUserProps) => {
     <div className="flex items-center gap-2">
       <Link
         to={`/users/${user.username}`}
-        className="group flex flex-1 items-center gap-2"
+        className="group flex flex-1 items-start gap-2"
       >
         <Avatar className="size-9 shrink-0">
           <AvatarImage src={user.avatarUrl} />
@@ -43,10 +44,13 @@ const RecommendedUser = ({ user }: RecommendedUserProps) => {
         </Avatar>
 
         <div className="flex min-w-0 flex-1 flex-col text-left text-sm">
-          <span className="truncate font-bold underline-offset-4 group-hover:underline">
+          <span className="truncate font-semibold underline-offset-4 group-hover:underline">
             {fullName}
           </span>
           <span className="text-muted-foreground truncate">{`@${user.username}`}</span>
+          {showBio && user.bio && (
+            <span className="mt-2 truncate">{user.bio}</span>
+          )}
         </div>
       </Link>
 
@@ -65,7 +69,7 @@ const RecommendedUser = ({ user }: RecommendedUserProps) => {
           disabled={isPending}
           className="group relative"
         >
-          <span className="group-hover:hidden">Following</span>
+          <span className="text-primary group-hover:hidden">Following</span>
           <span className="text-destructive hidden group-hover:inline">
             Unfollow
           </span>

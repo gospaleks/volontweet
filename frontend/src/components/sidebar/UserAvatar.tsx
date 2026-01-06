@@ -50,7 +50,7 @@ const UserAvatar = () => {
         </Avatar>
 
         <div className="flex min-w-0 flex-1 flex-col text-left text-sm">
-          <span className="truncate font-bold">{fullName}</span>
+          <span className="truncate font-semibold">{fullName}</span>
           <span className="text-muted-foreground truncate">{`@${user.username}`}</span>
         </div>
 
