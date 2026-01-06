@@ -9,6 +9,7 @@ import { ILike, Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
 
 import { User } from './entity/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 import { GET_RECOMMENDED_USERS_QUERY } from './queries/recommendations.query';
 import { TOGGLE_FOLLOW_USER_QUERY } from './queries/toggle-follow.query';
@@ -39,6 +40,47 @@ export class UsersService {
       followersCount: this.neo4jService.int(record.followersCount).toNumber(),
       followingCount: this.neo4jService.int(record.followingCount).toNumber(),
     };
+  }
+
+  async updateUserInfo(userId: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const oldPostgresData = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      bio: user.bio,
+    };
+
+    Object.assign(user, updateUserDto);
+
+    const updatedUser = await this.userRepository.save(user);
+
+    try {
+      await this.neo4jService.write(
+        /* cypher */ `
+        MATCH (u:User {id: $userId})
+        SET u += $props
+        RETURN u
+        `,
+        {
+          userId,
+          props: updateUserDto,
+        },
+      );
+    } catch (error) {
+      await this.userRepository.save({
+        ...user,
+        ...oldPostgresData,
+      });
+
+      throw error;
+    }
+
+    return updatedUser;
   }
 
   async getUsersSuggestions(limit: number, search: string) {

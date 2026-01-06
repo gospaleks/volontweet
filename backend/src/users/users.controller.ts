@@ -1,9 +1,12 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   DefaultValuePipe,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -13,9 +16,25 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 import { UsersService } from './users.service';
 
+import { UpdateUserDto } from './dto/update-user.dto';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Patch()
+  updateUserInfo(
+    @Req() request: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = request['user'] as JwtPayload;
+
+    if (!updateUserDto.firstName || !updateUserDto.lastName) {
+      throw new BadRequestException('First name and last name cannot be empty');
+    }
+
+    return this.usersService.updateUserInfo(user.sub, updateUserDto);
+  }
 
   @Get('suggestions')
   getUserSuggestions(

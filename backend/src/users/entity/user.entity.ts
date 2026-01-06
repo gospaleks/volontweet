@@ -26,6 +26,9 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column({ type: 'text', nullable: true })
+  bio: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
