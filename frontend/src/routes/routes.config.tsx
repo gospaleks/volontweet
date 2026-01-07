@@ -9,7 +9,7 @@ import PublicRoute from './PublicRoute';
 
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
-import HomePage from '@/pages/HomePage';
+import HomePage from '@/pages/Home';
 import NotFoundPage from '@/pages/NotFoundPage';
 import UsersPage from '@/pages/UsersPage';
 import UserDetailsPage from '@/pages/UserDetails';

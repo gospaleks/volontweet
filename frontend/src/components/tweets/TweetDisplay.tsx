@@ -1,6 +1,10 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useCallback } from 'react';
+
+import { formatRelativeDate } from '@/lib/utils';
 
 import type { Mention, Tweet } from '@/types/tweet.type';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -13,10 +17,29 @@ const TweetDisplay = ({
   onMentionHover,
   onHashtagClick,
 }: TweetDisplayProps) => {
-  const renderTweetContent = () => {
+  const user = tweet.author;
+  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
+
+  const renderTweetContent = useCallback(() => {
     const { content: raw, mentions } = tweet;
 
     const segments: React.ReactNode[] = [];
+
+    let keyIndex = 0;
+
+    const pushTextWithNewlines = (text: string) => {
+      const parts = text.split('\n');
+
+      parts.forEach((part, idx) => {
+        if (part.length > 0) {
+          segments.push(part);
+        }
+
+        if (idx < parts.length - 1) {
+          segments.push(<br key={`nl-${keyIndex++}`} />);
+        }
+      });
+    };
 
     let lastIndex = 0;
 
@@ -26,7 +49,7 @@ const TweetDisplay = ({
     sortedMentions.forEach((mention) => {
       // Add text before mention
       if (lastIndex < mention.start) {
-        segments.push(raw.substring(lastIndex, mention.start));
+        pushTextWithNewlines(raw.substring(lastIndex, mention.start));
       }
 
       // Add mention/hashtag with highlighting
@@ -57,31 +80,38 @@ const TweetDisplay = ({
 
     // Add remaining text
     if (lastIndex < raw.length) {
-      segments.push(raw.substring(lastIndex));
+      pushTextWithNewlines(raw.substring(lastIndex));
     }
 
     return segments;
-  };
+  }, [onHashtagClick, onMentionHover, tweet]);
 
   return (
-    <Card>
-      {tweet.author && (
-        <CardHeader className="flex items-center gap-3">
-          <div>
-            <div className="text-sm font-semibold">
-              {tweet.author.firstName} {tweet.author.lastName}
-            </div>
-            <div className="text-muted-foreground text-xs">
-              @{tweet.author.username}
-            </div>
-          </div>
-        </CardHeader>
-      )}
+    <div className="flex gap-4 border-b p-4">
+      <Avatar className="size-11 shrink-0">
+        <AvatarImage src={user.avatarUrl} />
+        <AvatarFallback>{avatarFallback}</AvatarFallback>
+      </Avatar>
 
-      <CardContent className="text-base leading-relaxed wrap-break-word">
-        {renderTweetContent()}
-      </CardContent>
-    </Card>
+      <div className="flex w-full flex-col">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold">
+            {user.firstName} {user.lastName}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            @{user.username}
+          </span>
+          <span>·</span>
+          <span className="text-muted-foreground text-sm">
+            {formatRelativeDate(tweet.createdAt)}
+          </span>
+        </div>
+
+        <div className="text-base leading-relaxed wrap-break-word">
+          {renderTweetContent()}
+        </div>
+      </div>
+    </div>
   );
 };
 

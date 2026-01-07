@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   LOGOUT: `/auth/logout`,
 
   TWEETS: '/tweets',
+  FEED_FOLLOWING: '/tweets/feed/following',
 
   TRENDING_HASHTAGS: '/hashtags/trending',
 
