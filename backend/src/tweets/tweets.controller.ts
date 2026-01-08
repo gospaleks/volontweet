@@ -3,6 +3,7 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -35,5 +36,16 @@ export class TweetsController {
   ) {
     const user = req['user'] as JwtPayload;
     return this.tweetsService.getFollowingTimeline(user.sub, page, size);
+  }
+
+  @Get('user/:userId')
+  async getUserTweets(
+    @Req() req: Request,
+    @Param('userId') targetUserId: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+  ) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.getUserTweets(targetUserId, user.sub, page, size);
   }
 }

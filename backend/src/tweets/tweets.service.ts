@@ -11,6 +11,7 @@ import { CreateTweetDto } from './dto/create-tweet.dto';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
+import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 
 @Injectable()
 export class TweetsService {
@@ -60,8 +61,10 @@ export class TweetsService {
 
       return {
         ...tweetRecord,
-        createdAt: tweetRecord.createdAt.toString(),
-        mentions: JSON.parse(tweetRecord.mentionsJson),
+        createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
+        mentions: tweetRecord.mentionsJson
+          ? JSON.parse(tweetRecord.mentionsJson)
+          : [],
       };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -81,6 +84,25 @@ export class TweetsService {
     const skip = (page - 1) * size;
 
     const result = await this.neo4jService.read(GET_FOLLOWING_TIMELINE, {
+      currentUserId,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+
+    return this.processPagination(result.records, size, page);
+  }
+
+  async getUserTweets(
+    targetUserId: string,
+    currentUserId: string,
+    page: number,
+    size: number,
+  ) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_USER_TWEETS_QUERY, {
+      targetUserId,
       currentUserId,
       skip: this.neo4jService.int(skip),
       internalLimit: this.neo4jService.int(internalLimit),
