@@ -5,7 +5,11 @@ export const API_ENDPOINTS = {
   LOGOUT: `/auth/logout`,
 
   TWEETS: '/tweets',
+
+  // All tweet related endpoints have infinite scroll (queryParams: page, size)
   FEED_FOLLOWING: '/tweets/feed/following',
+  FEED_FOR_YOU: '/tweets/feed/for-you',
+  TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`,
 
   TRENDING_HASHTAGS: '/hashtags/trending',
 

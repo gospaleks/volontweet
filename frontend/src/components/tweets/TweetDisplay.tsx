@@ -1,10 +1,19 @@
 import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { FavouriteIcon } from '@hugeicons/core-free-icons';
 
 import { formatRelativeDate } from '@/lib/utils';
 
 import type { Mention, Tweet } from '@/types/tweet.type';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -88,14 +97,19 @@ const TweetDisplay = ({
 
   return (
     <div className="flex gap-4 border-b p-4">
-      <Avatar className="size-11 shrink-0">
-        <AvatarImage src={user.avatarUrl} />
-        <AvatarFallback>{avatarFallback}</AvatarFallback>
-      </Avatar>
+      <Link to={`/users/${user.username}`}>
+        <Avatar className="size-11 shrink-0">
+          <AvatarImage src={user.avatarUrl} />
+          <AvatarFallback>{avatarFallback}</AvatarFallback>
+        </Avatar>
+      </Link>
 
-      <div className="flex w-full flex-col">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">
+      <div className="flex w-full flex-col gap-1">
+        <Link
+          to={`/users/${user.username}`}
+          className="group flex items-center gap-2"
+        >
+          <span className="font-semibold underline-offset-4 group-hover:underline">
             {user.firstName} {user.lastName}
           </span>
           <span className="text-muted-foreground text-sm">
@@ -105,10 +119,27 @@ const TweetDisplay = ({
           <span className="text-muted-foreground text-sm">
             {formatRelativeDate(tweet.createdAt)}
           </span>
-        </div>
+        </Link>
 
         <div className="text-base leading-relaxed wrap-break-word">
           {renderTweetContent()}
+        </div>
+
+        <div className="ml-auto flex items-center">
+          <Tooltip delay={500}>
+            <TooltipTrigger className="group flex items-center">
+              <Button size="icon" variant="ghost">
+                <HugeiconsIcon
+                  icon={FavouriteIcon}
+                  fill={tweet.stats.isLikedByMe ? 'currentColor' : 'none'}
+                />
+              </Button>
+              {tweet.stats.likesCount}
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {tweet.stats.isLikedByMe ? 'Unlike' : 'Like'}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </div>
