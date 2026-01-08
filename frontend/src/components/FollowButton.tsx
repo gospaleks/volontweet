@@ -15,7 +15,7 @@ type Props = {
 const FollowButton = ({ user, isFollowing = false }: Props) => {
   const [isFollowingState, setIsFollowing] = useState(isFollowing);
 
-  const { mutate, isPending } = useToggleFollowUser(user.id);
+  const { mutate, isPending } = useToggleFollowUser(user);
 
   const fullName = `${user.firstName} ${user.lastName}`;
 

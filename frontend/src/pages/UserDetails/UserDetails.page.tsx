@@ -18,6 +18,7 @@ import { Spinner } from '@/components/ui/spinner';
 
 import Header from '@/components/Header';
 import UserInfo from './components/UserInfo';
+import TweetsTimeline from '@/components/tweets/TweetsTimeline';
 
 const UserDetailsPage = () => {
   const { username } = useParams<{ username: string }>();
@@ -45,7 +46,7 @@ const UserDetailsPage = () => {
       </Header>
 
       {isLoading ? (
-        <div className="flex h-full items-center justify-center">
+        <div className="flex items-center justify-center p-4">
           <Spinner />
         </div>
       ) : isError || !data ? (
@@ -61,7 +62,13 @@ const UserDetailsPage = () => {
           </EmptyHeader>
         </Empty>
       ) : (
-        <UserInfo user={data} />
+        <>
+          <UserInfo user={data} />
+          <TweetsTimeline
+            apiEndpoint={API_ENDPOINTS.TWEETS_FOR_USER(data.id)}
+            emptyDescription="This user hasn't posted any tweets yet"
+          />
+        </>
       )}
     </div>
   );

@@ -18,4 +18,8 @@ export type Tweet = {
   mentions: Mention[];
   createdAt: Date;
   author: AuthUser;
+  stats: {
+    likesCount: number;
+    isLikedByMe: boolean;
+  };
 };

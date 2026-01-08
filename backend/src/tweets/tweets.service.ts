@@ -10,6 +10,8 @@ import { RedisService } from 'src/redis/redis.service';
 import { CreateTweetDto } from './dto/create-tweet.dto';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
+import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
+import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 
 @Injectable()
 export class TweetsService {
@@ -59,8 +61,10 @@ export class TweetsService {
 
       return {
         ...tweetRecord,
-        createdAt: tweetRecord.createdAt.toString(),
-        mentions: JSON.parse(tweetRecord.mentionsJson),
+        createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
+        mentions: tweetRecord.mentionsJson
+          ? JSON.parse(tweetRecord.mentionsJson)
+          : [],
       };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -69,5 +73,67 @@ export class TweetsService {
         'Failed to create tweet, please try again later',
       );
     }
+  }
+
+  async getFollowingTimeline(
+    currentUserId: string,
+    page: number,
+    size: number,
+  ) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_FOLLOWING_TIMELINE, {
+      currentUserId,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+
+    return this.processPagination(result.records, size, page);
+  }
+
+  async getUserTweets(
+    targetUserId: string,
+    currentUserId: string,
+    page: number,
+    size: number,
+  ) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_USER_TWEETS_QUERY, {
+      targetUserId,
+      currentUserId,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+
+    return this.processPagination(result.records, size, page);
+  }
+
+  private processPagination(records: any[], size: number, page: number) {
+    const hasNextPage = records.length > size;
+    const data = hasNextPage ? records.slice(0, size) : records;
+
+    const mappedData = data.map((record) => {
+      const tweet = record.get('tweet');
+
+      return {
+        ...tweet,
+        createdAt: new Date(tweet.createdAt.toString()).toISOString(),
+        mentions: tweet.mentionsJson ? JSON.parse(tweet.mentionsJson) : [],
+        mentionsJson: undefined,
+        stats: {
+          ...tweet.stats,
+          likesCount: this.neo4jService.int(tweet.stats.likesCount).toNumber(),
+        },
+      };
+    });
+
+    return {
+      data: mappedData,
+      hasNextPage,
+      nextPage: hasNextPage ? page + 1 : null,
+    };
   }
 }
