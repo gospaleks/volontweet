@@ -1,11 +1,15 @@
 import { useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { FavouriteIcon } from '@hugeicons/core-free-icons';
+import { toast } from 'sonner';
 
 import { formatRelativeDate } from '@/lib/utils';
 
 import type { Mention, Tweet } from '@/types/tweet.type';
+
+import { useToggleLikeTweetMutation } from '@/hooks/tweets/useToggleLikeTweet';
 
 import {
   Tooltip,
@@ -19,15 +23,34 @@ type TweetDisplayProps = {
   tweet: Tweet;
   onMentionHover?: (mention: Mention) => void;
   onHashtagClick?: (hashtag: string) => void;
+  apiEndpoint?: string;
 };
 
 const TweetDisplay = ({
   tweet,
   onMentionHover,
   onHashtagClick,
+  apiEndpoint,
 }: TweetDisplayProps) => {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useToggleLikeTweetMutation(tweet.id);
+
   const user = tweet.author;
   const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
+
+  const handleToggleLike = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [apiEndpoint],
+        });
+      },
+      onError: () => {
+        toast.error('Failed to toggle like');
+      },
+    });
+  };
 
   const renderTweetContent = useCallback(() => {
     const { content: raw, mentions } = tweet;
@@ -128,7 +151,12 @@ const TweetDisplay = ({
         <div className="ml-auto flex items-center">
           <Tooltip delay={500}>
             <TooltipTrigger className="group flex items-center">
-              <Button size="icon" variant="ghost">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handleToggleLike}
+                disabled={isPending}
+              >
                 <HugeiconsIcon
                   icon={FavouriteIcon}
                   fill={tweet.stats.isLikedByMe ? 'currentColor' : 'none'}

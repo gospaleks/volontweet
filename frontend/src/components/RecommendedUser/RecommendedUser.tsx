@@ -16,7 +16,7 @@ const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
   const avatarFallback = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-start gap-2">
       <Link
         to={`/users/${user.username}`}
         className="group flex flex-1 items-start gap-2"
@@ -32,7 +32,7 @@ const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
           </span>
           <span className="text-muted-foreground truncate">{`@${user.username}`}</span>
           {showBio && user.bio && (
-            <span className="mt-2 truncate">{user.bio}</span>
+            <span className="mt-2 wrap-break-word">{user.bio}</span>
           )}
         </div>
       </Link>

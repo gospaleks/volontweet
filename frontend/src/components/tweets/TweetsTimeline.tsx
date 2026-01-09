@@ -81,7 +81,11 @@ const TweetsTimeline = ({
       ) : (
         <div className="flex flex-col">
           {tweets.map((tweet) => (
-            <TweetDisplay key={tweet.id} tweet={tweet} />
+            <TweetDisplay
+              key={tweet.id}
+              tweet={tweet}
+              apiEndpoint={apiEndpoint}
+            />
           ))}
         </div>
       )}
