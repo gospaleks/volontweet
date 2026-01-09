@@ -6,6 +6,8 @@ export const API_ENDPOINTS = {
 
   TWEETS: '/tweets',
 
+  TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
+
   // All tweet related endpoints have infinite scroll (queryParams: page, size)
   FEED_FOLLOWING: '/tweets/feed/following',
   FEED_FOR_YOU: '/tweets/feed/for-you',
