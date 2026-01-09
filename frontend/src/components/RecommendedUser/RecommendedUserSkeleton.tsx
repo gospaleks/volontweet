@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const RecommendedUserSkeleton = () => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-start gap-2">
       <Skeleton className="size-9 rounded-full" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 text-left text-sm">
