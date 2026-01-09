@@ -28,6 +28,12 @@ export class TweetsController {
     return this.tweetsService.createTweet(user.sub, tweetData);
   }
 
+  @Post(':id/like')
+  async toggleLike(@Param('id') tweetId: string, @Req() req: Request) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.toggleLike(tweetId, user.sub);
+  }
+
   @Get('feed/following')
   async getFollowingFeed(
     @Req() req: Request,

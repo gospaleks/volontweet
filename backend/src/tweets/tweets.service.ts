@@ -12,6 +12,7 @@ import { CreateTweetDto } from './dto/create-tweet.dto';
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
 import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
+import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
 
 @Injectable()
 export class TweetsService {
@@ -73,6 +74,24 @@ export class TweetsService {
         'Failed to create tweet, please try again later',
       );
     }
+  }
+
+  async toggleLike(tweetId: string, userId: string) {
+    const result = await this.neo4jService.write(TOGGLE_LIKE_QUERY, {
+      tweetId,
+      userId,
+    });
+
+    if (result.records.length === 0) {
+      throw new NotFoundException('Tweet or User not found');
+    }
+
+    const record = result.records[0];
+
+    return {
+      isLiked: record.get('isLiked'),
+      likesCount: this.neo4jService.int(record.get('likesCount')).toNumber(),
+    };
   }
 
   async getFollowingTimeline(
