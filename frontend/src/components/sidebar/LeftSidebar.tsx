@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AllBookmarkIcon,
+  FavouriteIcon,
   HomeIcon,
   Notification02Icon,
   UserIcon,
@@ -20,7 +21,8 @@ import UserAvatar from './UserAvatar';
 const sidebarLinks = [
   { label: 'Home', to: '/', icon: HomeIcon },
   { label: 'Notifications', to: '/notifications', icon: Notification02Icon },
-  { label: 'Bookmarks', to: '/bookmarks', icon: AllBookmarkIcon },
+  { label: 'Liked', to: '/liked', icon: FavouriteIcon },
+  { label: 'Bookmarked', to: '/bookmarks', icon: AllBookmarkIcon },
   { label: 'Profile', to: '/users', icon: UserIcon },
 ];
 
