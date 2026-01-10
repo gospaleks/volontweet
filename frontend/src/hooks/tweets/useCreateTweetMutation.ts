@@ -20,7 +20,7 @@ export const useCreateTweetMutation = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: [API_ENDPOINTS.USER_DETAILS(user?.username || '')],
+          queryKey: [API_ENDPOINTS.TWEETS_FOR_USER(user?.id || '')],
         });
 
         queryClient.invalidateQueries({
