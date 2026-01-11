@@ -1,9 +1,9 @@
 export class CreateTweetDto {
   raw: string;
-  mentions: Mention[];
+  mentionsString: string;
 }
 
-type Mention = {
+export type Mention = {
   type: '@' | '#';
   value: string;
   start: number;

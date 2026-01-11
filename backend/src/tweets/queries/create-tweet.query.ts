@@ -7,13 +7,15 @@ export const CREATE_TWEET_QUERY = /* cypher */ `
     id: $tweetId,
     content: $raw,
     mentionsJson: $mentionsJson,
+    imageUrl: $imageUrl,
+    imagePublicId: $imagePublicId,
     createdAt: datetime()
   })
 
   // 3. Connect author with tweet
   CREATE (author)-[:POSTED]->(t)
 
-  // 4. Process Mentions (@) - FOREACH does not "kill" rows if the list is empty
+  // 4. Process Mentions (@)
   WITH t, author
   FOREACH (mUsername IN $userMentions |
     MERGE (mentioned:User {username: mUsername})
