@@ -64,6 +64,40 @@ export class UsersController {
     return this.usersService.toggleFollow(user.sub, targetUserId);
   }
 
+  @Get(':username/followers')
+  getUserFollowers(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+    @Param('username') username: string,
+    @Req() request: Request,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.usersService.getUsersConnections(
+      user.sub,
+      username,
+      page,
+      size,
+      'followers',
+    );
+  }
+
+  @Get(':username/following')
+  getUserFollowing(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+    @Param('username') username: string,
+    @Req() request: Request,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.usersService.getUsersConnections(
+      user.sub,
+      username,
+      page,
+      size,
+      'following',
+    );
+  }
+
   @Get(':username')
   getUserByUsername(
     @Req() request: Request,

@@ -1,19 +1,23 @@
 import { Link } from 'react-router-dom';
 
-import type { UserRecommendation } from '@/types/user.types';
+import type { UserDetails } from '@/types/user.types';
+
+import { useAuthUser } from '@/stores/auth.store';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import FollowButton from '@/components/FollowButton';
 
 type RecommendedUserProps = {
-  user: UserRecommendation;
+  user: UserDetails;
   showBio?: boolean;
 };
 
 const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
   const fullName = `${user.firstName} ${user.lastName}`;
   const avatarFallback = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+
+  const currentUser = useAuthUser();
 
   return (
     <div className="flex items-start gap-2">
@@ -37,7 +41,9 @@ const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
         </div>
       </Link>
 
-      <FollowButton user={user} />
+      {currentUser?.id !== user.id && (
+        <FollowButton user={user} isFollowing={user.stats.isFollowedByMe} />
+      )}
     </div>
   );
 };

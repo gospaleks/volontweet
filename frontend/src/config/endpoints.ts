@@ -8,10 +8,9 @@ export const API_ENDPOINTS = {
 
   TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
 
-  // All tweet related endpoints have infinite scroll (queryParams: page, size)
-  FEED_FOLLOWING: '/tweets/feed/following',
-  FEED_FOR_YOU: '/tweets/feed/for-you',
-  TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`,
+  FEED_FOLLOWING: '/tweets/feed/following', // Infinite scroll (queryParams: page, size)
+  FEED_FOR_YOU: '/tweets/feed/for-you', // Infinite scroll (queryParams: page, size)
+  TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`, // Infinite scroll (queryParams: page, size)
 
   TRENDING_HASHTAGS: '/hashtags/trending',
 
@@ -20,4 +19,6 @@ export const API_ENDPOINTS = {
   USER_RECOMMENDATIONS: '/users/recommendations', // Infinite scroll (queryParams: page, size)
   TOGGLE_FOLLOW_USER: (userId: string) => `/users/${userId}/follow`,
   USER_DETAILS: (username: string) => `/users/${username}`,
+  USER_FOLLOWERS: (username: string) => `/users/${username}/followers`, // Infinite scroll (queryParams: page, size)
+  USER_FOLLOWING: (username: string) => `/users/${username}/following`, // Infinite scroll (queryParams: page, size)
 };

@@ -2,7 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 
-import type { UserRecommendation } from '@/types/user.types';
+import type { UserDetails } from '@/types/user.types';
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -14,7 +14,7 @@ import H3 from '@/components/ui/typography/H3';
 
 const UsersPage = () => {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery<InfiniteResponse<UserRecommendation>>({
+    useInfiniteQuery<InfiniteResponse<UserDetails>>({
       queryKey: [API_ENDPOINTS.USER_RECOMMENDATIONS, { size: '20' }],
       initialPageParam: 1,
       getNextPageParam: (lastPage) =>

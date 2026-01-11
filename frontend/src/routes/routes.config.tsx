@@ -13,6 +13,7 @@ import HomePage from '@/pages/Home';
 import NotFoundPage from '@/pages/NotFoundPage';
 import UsersPage from '@/pages/UsersPage';
 import UserDetailsPage from '@/pages/UserDetails';
+import UserFollowsPage from '@/pages/UserFollows';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,8 @@ export const router = createBrowserRouter([
           { path: '/', element: <HomePage /> },
           { path: '/users', element: <UsersPage /> },
           { path: '/users/:username', element: <UserDetailsPage /> },
+          { path: '/users/:username/followers', element: <UserFollowsPage /> },
+          { path: '/users/:username/following', element: <UserFollowsPage /> },
         ],
       },
     ],

@@ -13,6 +13,7 @@ import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
 import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
+import { toNum } from 'src/common/utils/neo4j-utils';
 
 @Injectable()
 export class TweetsService {
@@ -90,7 +91,7 @@ export class TweetsService {
 
     return {
       isLiked: record.get('isLiked'),
-      likesCount: this.neo4jService.int(record.get('likesCount')).toNumber(),
+      likesCount: toNum(record.get('likesCount')),
     };
   }
 
@@ -144,7 +145,7 @@ export class TweetsService {
         mentionsJson: undefined,
         stats: {
           ...tweet.stats,
-          likesCount: this.neo4jService.int(tweet.stats.likesCount).toNumber(),
+          likesCount: toNum(tweet.stats.likesCount),
         },
       };
     });

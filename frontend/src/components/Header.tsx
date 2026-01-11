@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft02Icon } from '@hugeicons/core-free-icons';
 
+import { cn } from '@/lib/utils';
+
 import {
   Tooltip,
   TooltipContent,
@@ -10,16 +12,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type Props = {
+type HeaderProps = {
   children: React.ReactNode;
   isLoading?: boolean;
+  className?: string;
 };
 
-const Header = ({ children, isLoading }: Props) => {
+const Header = ({ children, isLoading, className }: HeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-background/70 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 flex items-center gap-2 border-b p-4 backdrop-blur">
+    <div
+      className={cn(
+        'bg-background/70 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 flex items-center gap-2 border-b p-4 backdrop-blur',
+        className,
+      )}
+    >
       <Tooltip delay={500}>
         <TooltipTrigger
           render={

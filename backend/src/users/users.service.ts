@@ -8,12 +8,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
 
+import { transformNeo4jTypes } from 'src/common/utils/neo4j-utils';
+
 import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { GET_RECOMMENDED_USERS_QUERY } from './queries/recommendations.query';
 import { TOGGLE_FOLLOW_USER_QUERY } from './queries/toggle-follow.query';
 import { GET_USER_DETAILS_QUERY } from './queries/get-user-details.query';
+import { GET_USER_FOLLOWERS_QUERY } from './queries/get-followers.query';
+import { GET_USER_FOLLOWING_QUERY } from './queries/get-following.query';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +25,31 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly neo4jService: Neo4jService,
   ) {}
+
+  async getUsersConnections(
+    currentUserId: string,
+    username: string,
+    page: number,
+    size: number,
+    type: 'followers' | 'following',
+  ) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(
+      type === 'followers'
+        ? GET_USER_FOLLOWERS_QUERY
+        : GET_USER_FOLLOWING_QUERY,
+      {
+        currentUserId,
+        username,
+        skip: this.neo4jService.int(skip),
+        internalLimit: this.neo4jService.int(internalLimit),
+      },
+    );
+
+    return this.processUserPagination(result.records, size, page);
+  }
 
   async getUserByUsername(currentUserId: string, username: string) {
     const result = await this.neo4jService.read(GET_USER_DETAILS_QUERY, {
@@ -32,14 +61,9 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const record = result.records[0].get('user');
+    const user = result.records[0].get('user');
 
-    return {
-      ...record,
-      tweetsCount: this.neo4jService.int(record.tweetsCount).toNumber(),
-      followersCount: this.neo4jService.int(record.followersCount).toNumber(),
-      followingCount: this.neo4jService.int(record.followingCount).toNumber(),
-    };
+    return transformNeo4jTypes(user);
   }
 
   async updateUserInfo(userId: string, updateUserDto: UpdateUserDto) {
@@ -97,7 +121,7 @@ export class UsersService {
   }
 
   async getRecommendedUsers(currentUserId: string, page: number, size: number) {
-    const internalLimit = size + 1; // To check if there is a next page
+    const internalLimit = size + 1;
     const skip = (page - 1) * size;
 
     const result = await this.neo4jService.read(GET_RECOMMENDED_USERS_QUERY, {
@@ -106,25 +130,7 @@ export class UsersService {
       skip: this.neo4jService.int(Math.max(0, skip)),
     });
 
-    const users = result.records.map((record) => {
-      const user = record.get('user');
-      return {
-        ...user,
-        mutualFollowersCount:
-          typeof user.mutualFollowersCount === 'object'
-            ? user.mutualFollowersCount.low
-            : user.mutualFollowersCount,
-      };
-    });
-
-    const hasNextPage = users.length > size;
-    const data = hasNextPage ? users.slice(0, size) : users;
-
-    return {
-      data,
-      hasNextPage,
-      nextPage: hasNextPage ? page + 1 : null,
-    };
+    return this.processUserPagination(result.records, size, page);
   }
 
   async toggleFollow(followerId: string, followedId: string) {
@@ -142,5 +148,22 @@ export class UsersService {
     }
 
     return { followed: result.records[0].get('followed') };
+  }
+
+  private processUserPagination(records: any[], size: number, page: number) {
+    const hasNextPage = records.length > size;
+    const data = hasNextPage ? records.slice(0, size) : records;
+
+    const mappedData = data.map((record) => {
+      const user = record.get('user');
+
+      return transformNeo4jTypes(user);
+    });
+
+    return {
+      data: mappedData,
+      hasNextPage,
+      nextPage: hasNextPage ? page + 1 : null,
+    };
   }
 }

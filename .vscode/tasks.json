@@ -18,6 +18,22 @@
       }
     },
     {
+      "label": "Stop Docker Databases",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "panel": "shared",
+        "echo": true,
+        "reveal": "always",
+        "focus": false
+      }
+    },
+    {
       "label": "Start Backend",
       "type": "shell",
       "command": "npm install; npm run start:dev",
