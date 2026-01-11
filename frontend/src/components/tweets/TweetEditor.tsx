@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon, ImageUploadIcon } from '@hugeicons/core-free-icons';
 
 import type { Mention, TweetData } from '@/types/tweet.type';
 
@@ -19,6 +21,11 @@ import {
   InputGroupTextarea,
 } from '@/components/ui/input-group';
 import { Spinner } from '@/components/ui/spinner';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import MentionDropdown from './MentionDropdown';
 
@@ -46,7 +53,11 @@ const TweetEditor = ({
   );
   const [mentionQuery, setMentionQuery] = useState('');
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.currentTarget.value;
@@ -91,6 +102,30 @@ const TweetEditor = ({
     setSelectedMentionUsernames((prev) =>
       prev.filter((username) => usernamesInText.has(username)),
     );
+  };
+
+  const handleImageButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSelectMention = (selectedValue: string) => {
@@ -142,11 +177,13 @@ const TweetEditor = ({
     const tweetData: TweetData = {
       raw: content,
       mentions: filteredMentions,
+      image: selectedImage || undefined,
     };
 
     await onSubmit?.(tweetData);
     setContent('');
     setMentions([]);
+    handleRemoveImage();
   };
 
   const isSubmitDisabled =
@@ -170,6 +207,58 @@ const TweetEditor = ({
         </InputGroupAddon>
       </InputGroup>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        hidden
+      />
+
+      {imagePreview && (
+        <div className="relative w-fit">
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="max-h-96 w-fit rounded-4xl object-cover"
+          />
+          <Button
+            size="icon"
+            variant="secondary"
+            className="absolute top-2 right-2"
+            onClick={handleRemoveImage}
+          >
+            <HugeiconsIcon icon={Cancel01Icon} />
+          </Button>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <Tooltip delay={400}>
+          <TooltipTrigger
+            render={
+              <Button
+                size="icon"
+                variant="secondary"
+                onClick={handleImageButtonClick}
+                type="button"
+              >
+                <HugeiconsIcon icon={ImageUploadIcon} />
+              </Button>
+            }
+          />
+          <TooltipContent side="bottom">Upload image</TooltipContent>
+        </Tooltip>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitDisabled}
+          className="w-20"
+        >
+          {isPending ? <Spinner /> : 'Post'}
+        </Button>
+      </div>
+
       {showMentionDropdown && mentionTrigger && (
         <MentionDropdown
           trigger={mentionTrigger}
@@ -182,14 +271,6 @@ const TweetEditor = ({
           position={cursorPosition}
         />
       )}
-
-      <Button
-        onClick={handleSubmit}
-        disabled={isSubmitDisabled}
-        className="ml-auto w-20"
-      >
-        {isPending ? <Spinner /> : 'Post'}
-      </Button>
     </div>
   );
 };
