@@ -6,7 +6,8 @@ import { UserAdd01Icon, UserMultiple02Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 import { API_ENDPOINTS } from '@/config/endpoints';
 
-import type { UserRecommendation } from '@/types/user.types';
+import type { UserDetails } from '@/types/user.types';
+
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 
 import { buttonVariants } from '@/components/ui/button';
@@ -24,9 +25,7 @@ import RecommendedUser from '@/components/RecommendedUser/RecommendedUser';
 import RecommendedUserSkeleton from '@/components/RecommendedUser/RecommendedUserSkeleton';
 
 const WhoToFollow = () => {
-  const { data: users, isLoading } = useQuery<
-    InfiniteResponse<UserRecommendation>
-  >({
+  const { data: users, isLoading } = useQuery<InfiniteResponse<UserDetails>>({
     queryKey: [API_ENDPOINTS.USER_RECOMMENDATIONS, { page: 1, size: 5 }],
   });
 

@@ -12,6 +12,7 @@ import H2 from '@/components/ui/typography/H2';
 
 import FollowButton from '@/components/FollowButton';
 import UserInfoFormDialog from './UserInfoFormDialog';
+import { Link } from 'react-router-dom';
 
 type UserInfoProps = {
   user: UserDetails;
@@ -63,21 +64,34 @@ const UserInfo = ({ user }: UserInfoProps) => {
                 Edit profile
               </Button>
             ) : (
-              <FollowButton user={user} isFollowing={user.isFollowedByMe} />
+              <FollowButton
+                user={user}
+                isFollowing={user.stats.isFollowedByMe}
+              />
             )}
           </div>
 
           {user.bio && <p>{user.bio}</p>}
 
           <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">{user.followingCount}</span>
-              <span className="text-muted-foreground">Following</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">{user.followersCount}</span>
-              <span className="text-muted-foreground">Followers</span>
-            </div>
+            <Link
+              to={`/users/${user.username}/following`}
+              className="group flex items-center gap-1"
+            >
+              <span className="font-semibold">{user.stats.followingCount}</span>
+              <span className="text-muted-foreground group-hover:text-foreground underline-offset-4 group-hover:underline">
+                Following
+              </span>
+            </Link>
+            <Link
+              to={`/users/${user.username}/followers`}
+              className="group flex items-center gap-1"
+            >
+              <span className="font-semibold">{user.stats.followersCount}</span>
+              <span className="text-muted-foreground group-hover:text-foreground underline-offset-4 group-hover:underline">
+                Followers
+              </span>
+            </Link>
           </div>
         </div>
       </div>

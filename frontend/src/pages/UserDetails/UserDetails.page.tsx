@@ -37,7 +37,8 @@ const UserDetailsPage = () => {
               {data.firstName} {data.lastName}
             </span>
             <span className="text-muted-foreground text-xs">
-              {data.tweetsCount} {data.tweetsCount === 1 ? 'Tweet' : 'Tweets'}
+              {data.stats.tweetsCount}{' '}
+              {data.stats.tweetsCount === 1 ? 'Tweet' : 'Tweets'}
             </span>
           </div>
         ) : (
