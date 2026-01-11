@@ -4,39 +4,61 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { toNum } from 'src/common/utils/neo4j-utils';
+import { CLOUDINARY_TWEETS_FOLDER } from 'src/cloudinary/constants';
+
 import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
-import { CreateTweetDto } from './dto/create-tweet.dto';
+import { CreateTweetDto, Mention } from './dto/create-tweet.dto';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
 import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
-import { toNum } from 'src/common/utils/neo4j-utils';
 
 @Injectable()
 export class TweetsService {
   constructor(
     private readonly neo4jService: Neo4jService,
     private readonly redisService: RedisService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async createTweet(authorId: string, tweetData: CreateTweetDto) {
-    const { raw, mentions } = tweetData;
-
-    const mentionsJson = JSON.stringify(mentions);
+  async createTweet(
+    authorId: string,
+    tweetData: CreateTweetDto,
+    image?: Express.Multer.File,
+  ) {
+    const { raw, mentionsString } = tweetData;
 
     const tweetId = crypto.randomUUID();
 
-    const userMentions = mentions
+    const mentionsJson = mentionsString;
+    const mentionsParsed: Mention[] = JSON.parse(mentionsString);
+
+    const userMentions = mentionsParsed
       .filter((m) => m.type === '@')
       .map((m) => m.value);
-    const hashtags = mentions
+    const hashtags = mentionsParsed
       .filter((m) => m.type === '#')
       .map((m) => m.value.toLowerCase());
 
+    let imageUrl: string | null = null;
+    let imagePublicId: string | null = null;
+
     try {
+      // Cloudinary upload if image is provided
+      if (image) {
+        const uploadResult = await this.cloudinaryService.uploadImage(
+          image.buffer,
+          `${CLOUDINARY_TWEETS_FOLDER}/${tweetId}`,
+        );
+        imageUrl = uploadResult.secure_url;
+        imagePublicId = uploadResult.public_id;
+      }
+
       const result = await this.neo4jService.write(CREATE_TWEET_QUERY, {
         authorId,
         tweetId,
@@ -44,6 +66,8 @@ export class TweetsService {
         mentionsJson,
         userMentions,
         hashtags,
+        imageUrl,
+        imagePublicId,
       });
 
       if (result.records.length === 0) {
@@ -69,6 +93,11 @@ export class TweetsService {
           : [],
       };
     } catch (error) {
+      // Delete uploaded image in case of error
+      if (image && imagePublicId) {
+        await this.cloudinaryService.deleteImage(imagePublicId);
+      }
+
       if (error instanceof NotFoundException) throw error;
       console.error('Error creating tweet:', error);
       throw new InternalServerErrorException(
@@ -93,6 +122,10 @@ export class TweetsService {
       isLiked: record.get('isLiked'),
       likesCount: toNum(record.get('likesCount')),
     };
+  }
+
+  async getForYouTimeline(currentUserId: string, page: number, size: number) {
+    throw new InternalServerErrorException('Not implemented yet');
   }
 
   async getFollowingTimeline(

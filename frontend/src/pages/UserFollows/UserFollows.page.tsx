@@ -4,12 +4,14 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { API_ENDPOINTS } from '@/config/endpoints';
 
 import type { UserDetails } from '@/types/user.types';
+import type { InfiniteResponse } from '@/types/infiniteResponse.type';
+
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Header from '@/components/Header';
-import type { InfiniteResponse } from '@/types/infiniteResponse.type';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Spinner } from '@/components/ui/spinner';
+
+import Header from '@/components/Header';
 import RecommendedUser from '@/components/RecommendedUser/RecommendedUser';
 
 const UserFollowsPage = () => {

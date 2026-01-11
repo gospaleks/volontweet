@@ -8,7 +8,11 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+
+import { ImageUploadInterceptor } from 'src/common/interceptors/image-upload.interceptor';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
@@ -20,18 +24,30 @@ export class TweetsController {
   constructor(private readonly tweetsService: TweetsService) {}
 
   @Post()
+  @UseInterceptors(ImageUploadInterceptor())
   async createTweet(
-    @Body() tweetData: CreateTweetDto,
     @Req() request: Request,
+    @Body() tweetData: CreateTweetDto,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
     const user = request['user'] as JwtPayload;
-    return this.tweetsService.createTweet(user.sub, tweetData);
+    return this.tweetsService.createTweet(user.sub, tweetData, image);
   }
 
   @Post(':id/like')
   async toggleLike(@Param('id') tweetId: string, @Req() req: Request) {
     const user = req['user'] as JwtPayload;
     return this.tweetsService.toggleLike(tweetId, user.sub);
+  }
+
+  @Get('feed/for-you')
+  async getForYouFeed(
+    @Req() req: Request,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+  ) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.getForYouTimeline(user.sub, page, size);
   }
 
   @Get('feed/following')

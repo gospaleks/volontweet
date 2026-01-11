@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -33,6 +34,7 @@ const TweetDisplay = ({
   apiEndpoint,
 }: TweetDisplayProps) => {
   const queryClient = useQueryClient();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const { mutate, isPending } = useToggleLikeTweetMutation(tweet.id);
 
@@ -53,7 +55,9 @@ const TweetDisplay = ({
   };
 
   const renderTweetContent = useCallback(() => {
-    const { content: raw, mentions } = tweet;
+    const { content: rawContent, mentions } = tweet;
+
+    const raw = rawContent.replace(/\r\n/g, '\n');
 
     const segments: React.ReactNode[] = [];
 
@@ -128,6 +132,7 @@ const TweetDisplay = ({
       </Link>
 
       <div className="flex w-full flex-col gap-1">
+        {/* User info and relative timestamp */}
         <Link
           to={`/users/${user.username}`}
           className="group flex items-center gap-2"
@@ -144,26 +149,49 @@ const TweetDisplay = ({
           </span>
         </Link>
 
+        {/* Text content with hashtags and mentions */}
         <div className="text-base leading-relaxed wrap-break-word">
           {renderTweetContent()}
         </div>
 
+        {/* Image preview */}
+        {tweet.imageUrl && (
+          <div className="relative h-96 w-full">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 rounded-4xl" />
+            )}
+            <img
+              src={tweet.imageUrl}
+              alt={`Tweet image by ${user.username}`}
+              className={`h-full w-fit rounded-4xl object-cover ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => setImageLoaded(true)}
+            />
+          </div>
+        )}
+
+        {/* Actions */}
         <div className="ml-auto flex items-center">
           <Tooltip delay={500}>
-            <TooltipTrigger className="group flex items-center">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleToggleLike}
-                disabled={isPending}
-              >
-                <HugeiconsIcon
-                  icon={FavouriteIcon}
-                  fill={tweet.stats.isLikedByMe ? 'currentColor' : 'none'}
-                />
-              </Button>
-              {tweet.stats.likesCount}
-            </TooltipTrigger>
+            <TooltipTrigger
+              render={
+                <div className="group flex items-center">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleToggleLike}
+                    disabled={isPending}
+                  >
+                    <HugeiconsIcon
+                      icon={FavouriteIcon}
+                      fill={tweet.stats.isLikedByMe ? 'currentColor' : 'none'}
+                    />
+                  </Button>
+                  {tweet.stats.likesCount}
+                </div>
+              }
+            />
             <TooltipContent side="bottom">
               {tweet.stats.isLikedByMe ? 'Unlike' : 'Like'}
             </TooltipContent>

@@ -52,7 +52,7 @@ const TweetsTimeline = ({
   return (
     <div className="flex h-full flex-col">
       {isLoading ? (
-        <div className="flex items-center justify-center p-4">
+        <div className="flex h-screen justify-center p-4">
           <Spinner />
         </div>
       ) : isError ? (

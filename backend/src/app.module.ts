@@ -15,6 +15,7 @@ import { AppService } from './app.service';
 
 import { createTypeOrmOptions } from './database/typeorm.config';
 import { createNeo4jOptions } from './database/neo4j.config';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { createNeo4jOptions } from './database/neo4j.config';
     UsersModule,
     TweetsModule,
     HashtagsModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

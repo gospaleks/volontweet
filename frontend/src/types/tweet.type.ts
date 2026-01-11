@@ -10,12 +10,15 @@ export type Mention = {
 export type TweetData = {
   raw: string;
   mentions: Mention[];
+  image?: File;
 };
 
 export type Tweet = {
   id: string;
   content: string;
   mentions: Mention[];
+  imageUrl?: string;
+  imagePublicId?: string;
   createdAt: Date;
   author: AuthUser;
   stats: {
