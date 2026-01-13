@@ -17,6 +17,7 @@ import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
 import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
+import { GET_FOR_YOU_TIMELINE } from './queries/get-for-you-timeline.query';
 
 @Injectable()
 export class TweetsService {
@@ -125,7 +126,16 @@ export class TweetsService {
   }
 
   async getForYouTimeline(currentUserId: string, page: number, size: number) {
-    throw new InternalServerErrorException('Not implemented yet');
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_FOR_YOU_TIMELINE, {
+      currentUserId,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+
+    return this.processPagination(result.records, size, page);
   }
 
   async getFollowingTimeline(
