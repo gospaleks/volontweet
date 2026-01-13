@@ -31,13 +31,13 @@ const UsersPage = () => {
   const users = data?.pages.flatMap((page) => page.data) || [];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       <Header>
         <H3>Suggested for you</H3>
       </Header>
 
       {isLoading ? (
-        <div className="flex justify-center px-4">
+        <div className="flex h-screen justify-center px-4">
           <Spinner />
         </div>
       ) : (

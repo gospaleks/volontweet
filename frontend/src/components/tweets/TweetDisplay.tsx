@@ -1,9 +1,7 @@
 import { useCallback, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { FavouriteIcon } from '@hugeicons/core-free-icons';
-import { toast } from 'sonner';
 
 import { formatRelativeDate } from '@/lib/utils';
 
@@ -24,7 +22,7 @@ type TweetDisplayProps = {
   tweet: Tweet;
   onMentionHover?: (mention: Mention) => void;
   onHashtagClick?: (hashtag: string) => void;
-  apiEndpoint?: string;
+  apiEndpoint: string;
 };
 
 const TweetDisplay = ({
@@ -33,25 +31,18 @@ const TweetDisplay = ({
   onHashtagClick,
   apiEndpoint,
 }: TweetDisplayProps) => {
-  const queryClient = useQueryClient();
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const { mutate, isPending } = useToggleLikeTweetMutation(tweet.id);
+  const { mutate, isPending } = useToggleLikeTweetMutation(
+    tweet.id,
+    apiEndpoint,
+  );
 
   const user = tweet.author;
   const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   const handleToggleLike = () => {
-    mutate(undefined, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: [apiEndpoint],
-        });
-      },
-      onError: () => {
-        toast.error('Failed to toggle like');
-      },
-    });
+    mutate();
   };
 
   const renderTweetContent = useCallback(() => {
@@ -186,9 +177,19 @@ const TweetDisplay = ({
                     <HugeiconsIcon
                       icon={FavouriteIcon}
                       fill={tweet.stats.isLikedByMe ? 'currentColor' : 'none'}
+                      color={
+                        tweet.stats.isLikedByMe ? '#f91880' : 'currentColor'
+                      }
                     />
                   </Button>
-                  {tweet.stats.likesCount}
+                  <span
+                    style={{
+                      color: tweet.stats.isLikedByMe ? '#f91880' : undefined,
+                    }}
+                    className="-ml-1"
+                  >
+                    {tweet.stats.likesCount}
+                  </span>
                 </div>
               }
             />
