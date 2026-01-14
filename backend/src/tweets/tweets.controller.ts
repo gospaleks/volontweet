@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -32,6 +33,12 @@ export class TweetsController {
   ) {
     const user = request['user'] as JwtPayload;
     return this.tweetsService.createTweet(user.sub, tweetData, image);
+  }
+
+  @Delete(':id')
+  async deleteTweet(@Param('id') tweetId: string, @Req() req: Request) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.deleteTweet(tweetId, user.sub);
   }
 
   @Post(':id/like')

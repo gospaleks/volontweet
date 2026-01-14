@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -18,6 +19,7 @@ import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
 import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
 import { GET_FOR_YOU_TIMELINE } from './queries/get-for-you-timeline.query';
+import { DELETE_TWEET_QUERY } from './queries/delete-tweet.query';
 
 @Injectable()
 export class TweetsService {
@@ -105,6 +107,32 @@ export class TweetsService {
         'Failed to create tweet, please try again later',
       );
     }
+  }
+
+  async deleteTweet(tweetId: string, currentUserId: string) {
+    const result = await this.neo4jService.write(DELETE_TWEET_QUERY, {
+      tweetId,
+      currentUserId,
+    });
+
+    if (result.records.length === 0) {
+      throw new ForbiddenException(
+        'Tweet not found or you are not authorized to delete it',
+      );
+    }
+
+    const imagePublicId = result.records[0].get('imagePublicId');
+
+    // Delete image from Cloudinary if it exists (asynchronously)
+    if (imagePublicId) {
+      this.cloudinaryService
+        .deleteImage(imagePublicId)
+        .catch((err) =>
+          console.error('Failed to delete image from Cloudinary:', err),
+        );
+    }
+
+    return { message: 'Tweet deleted successfully' };
   }
 
   async toggleLike(tweetId: string, userId: string) {
