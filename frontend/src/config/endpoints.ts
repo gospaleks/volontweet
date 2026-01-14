@@ -5,8 +5,8 @@ export const API_ENDPOINTS = {
   LOGOUT: `/auth/logout`,
 
   TWEETS: '/tweets',
-
   TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
+  DELETE_TWEET: (tweetId: string) => `/tweets/${tweetId}`,
 
   FEED_FOLLOWING: '/tweets/feed/following', // Infinite scroll (queryParams: page, size)
   FEED_FOR_YOU: '/tweets/feed/for-you', // Infinite scroll (queryParams: page, size)
