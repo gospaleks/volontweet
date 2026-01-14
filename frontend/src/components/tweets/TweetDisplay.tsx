@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import TweetDropdownMenu from './TweetDropdownMenu';
+
 type TweetDisplayProps = {
   tweet: Tweet;
   onMentionHover?: (mention: Mention) => void;
@@ -124,21 +126,25 @@ const TweetDisplay = ({
 
       <div className="flex w-full flex-col gap-1">
         {/* User info and relative timestamp */}
-        <Link
-          to={`/users/${user.username}`}
-          className="group flex items-center gap-2"
-        >
-          <span className="font-semibold underline-offset-4 group-hover:underline">
-            {user.firstName} {user.lastName}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            @{user.username}
-          </span>
-          <span>·</span>
-          <span className="text-muted-foreground text-sm">
-            {formatRelativeDate(tweet.createdAt)}
-          </span>
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            to={`/users/${user.username}`}
+            className="group flex items-center gap-2"
+          >
+            <span className="font-semibold underline-offset-4 group-hover:underline">
+              {user.firstName} {user.lastName}
+            </span>
+            <span className="text-muted-foreground text-sm">
+              @{user.username}
+            </span>
+            <span>·</span>
+            <span className="text-muted-foreground text-sm">
+              {formatRelativeDate(tweet.createdAt)}
+            </span>
+          </Link>
+
+          <TweetDropdownMenu tweet={tweet} apiEndpoint={apiEndpoint} />
+        </div>
 
         {/* Text content with hashtags and mentions */}
         <div className="text-base leading-relaxed wrap-break-word">

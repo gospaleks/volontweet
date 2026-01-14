@@ -6,6 +6,7 @@ import type { AuthUser } from '@/stores/auth.store';
 import { useToggleFollowUser } from '@/hooks/users/useToggleFollowUser';
 
 import { Button } from '@/components/ui/button';
+import { LoadingSwap } from './ui/loading-swap';
 
 type Props = {
   user: AuthUser;
@@ -36,7 +37,7 @@ const FollowButton = ({ user, isFollowing = false }: Props) => {
         onClick={handleFollowClick}
         disabled={isPending}
       >
-        Follow
+        <LoadingSwap isLoading={isPending}>Follow</LoadingSwap>
       </Button>
     );
   } else {
@@ -47,10 +48,12 @@ const FollowButton = ({ user, isFollowing = false }: Props) => {
         disabled={isPending}
         className="group relative"
       >
-        <span className="text-primary group-hover:hidden">Following</span>
-        <span className="text-destructive hidden group-hover:inline">
-          Unfollow
-        </span>
+        <LoadingSwap isLoading={isPending}>
+          <span className="text-primary group-hover:hidden">Following</span>
+          <span className="text-destructive hidden group-hover:inline">
+            Unfollow
+          </span>
+        </LoadingSwap>
       </Button>
     );
   }

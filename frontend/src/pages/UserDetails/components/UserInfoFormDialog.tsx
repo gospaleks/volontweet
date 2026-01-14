@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import FormInput from '@/components/form/FormInput';
 import FormTextarea from '@/components/form/FormTextarea';
 import { API_ENDPOINTS } from '@/config/endpoints';
+import { LoadingSwap } from '@/components/ui/loading-swap';
 
 const MAX_BIO_LENGTH = 160;
 
@@ -131,7 +132,7 @@ const UserInfoFormDialog = ({
               type="submit"
               disabled={isPending || !form.formState.isDirty}
             >
-              Save
+              <LoadingSwap isLoading={isPending}>Save changes</LoadingSwap>
             </Button>
           </DialogFooter>
         </form>
