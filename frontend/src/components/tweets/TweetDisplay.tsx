@@ -5,7 +5,7 @@ import { FavouriteIcon } from '@hugeicons/core-free-icons';
 
 import { formatRelativeDate } from '@/lib/utils';
 
-import type { Mention, Tweet } from '@/types/tweet.type';
+import type { Tweet } from '@/types/tweet.type';
 
 import { useToggleLikeTweetMutation } from '@/hooks/tweets/useToggleLikeTweet';
 
@@ -22,17 +22,10 @@ import TweetDropdownMenu from './TweetDropdownMenu';
 
 type TweetDisplayProps = {
   tweet: Tweet;
-  onMentionHover?: (mention: Mention) => void;
-  onHashtagClick?: (hashtag: string) => void;
   apiEndpoint: string;
 };
 
-const TweetDisplay = ({
-  tweet,
-  onMentionHover,
-  onHashtagClick,
-  apiEndpoint,
-}: TweetDisplayProps) => {
+const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const { mutate, isPending } = useToggleLikeTweetMutation(
@@ -84,20 +77,19 @@ const TweetDisplay = ({
       // Add mention/hashtag with highlighting
       if (mention.type === '@') {
         segments.push(
-          <span
+          <Link
+            to={`/users/${mention.value}`}
             key={`${mention.type}-${mention.start}`}
             className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
-            onMouseEnter={() => onMentionHover?.(mention)}
           >
             @{mention.value}
-          </span>,
+          </Link>,
         );
       } else {
         segments.push(
           <span
             key={`${mention.type}-${mention.start}`}
             className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
-            onClick={() => onHashtagClick?.(mention.value)}
           >
             #{mention.value}
           </span>,
@@ -113,7 +105,7 @@ const TweetDisplay = ({
     }
 
     return segments;
-  }, [onHashtagClick, onMentionHover, tweet]);
+  }, [tweet]);
 
   return (
     <div className="flex gap-4 border-b p-4">
