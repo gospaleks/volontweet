@@ -29,6 +29,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   bio: string | null;
 
+  @Column({ type: 'text', nullable: true })
+  avatarUrl: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  avatarPublicId: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

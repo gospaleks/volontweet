@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 import { transformNeo4jTypes } from 'src/common/utils/neo4j-utils';
 
@@ -18,12 +19,14 @@ import { TOGGLE_FOLLOW_USER_QUERY } from './queries/toggle-follow.query';
 import { GET_USER_DETAILS_QUERY } from './queries/get-user-details.query';
 import { GET_USER_FOLLOWERS_QUERY } from './queries/get-followers.query';
 import { GET_USER_FOLLOWING_QUERY } from './queries/get-following.query';
+import { CLOUDINARY_AVATARS_FOLDER } from 'src/cloudinary/constants';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly neo4jService: Neo4jService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async getUsersConnections(
@@ -148,6 +151,63 @@ export class UsersService {
     }
 
     return { followed: result.records[0].get('followed') };
+  }
+
+  async updateUserAvatar(userId: string, image: Express.Multer.File) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      // Upload image to Cloudinary
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        image.buffer,
+        `${CLOUDINARY_AVATARS_FOLDER}/${userId}`,
+      );
+
+      const oldAvatarUrl = user.avatarUrl;
+      const oldAvatarPublicId = user.avatarPublicId;
+
+      // Save to Postgres and Neo4j
+      user.avatarUrl = uploadResult.secure_url;
+      user.avatarPublicId = uploadResult.public_id;
+      await this.userRepository.save(user);
+
+      try {
+        await this.neo4jService.write(
+          /* cypher */ `
+        MATCH (u:User {id: $userId})
+        SET u.avatarUrl = $avatarUrl
+        SET u.avatarPublicId = $avatarPublicId
+        RETURN u
+        `,
+          {
+            userId,
+            avatarUrl: uploadResult.secure_url,
+            avatarPublicId: uploadResult.public_id,
+          },
+        );
+      } catch (error) {
+        // Rollback Postgres change
+        user.avatarUrl = oldAvatarUrl;
+        user.avatarPublicId = oldAvatarPublicId;
+        await this.userRepository.save(user);
+
+        // Delete uploaded image from Cloudinary
+        await this.cloudinaryService.deleteImage(uploadResult.public_id);
+
+        throw error;
+      }
+
+      return {
+        avatarUrl: uploadResult.secure_url,
+      };
+    } catch (error) {
+      console.error('Error updating user avatar:', error);
+      throw new BadRequestException('Failed to update avatar');
+    }
   }
 
   private processUserPagination(records: any[], size: number, page: number) {
