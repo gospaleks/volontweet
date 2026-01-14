@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PencilEdit01Icon } from '@hugeicons/core-free-icons';
 
@@ -6,13 +7,12 @@ import type { UserDetails } from '@/types/user.types';
 
 import { useAuthUser } from '@/stores/auth.store';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import H2 from '@/components/ui/typography/H2';
 
 import FollowButton from '@/components/FollowButton';
 import UserInfoFormDialog from './UserInfoFormDialog';
-import { Link } from 'react-router-dom';
+import UserAvatarCropper from './UserAvatarCropper';
 
 type UserInfoProps = {
   user: UserDetails;
@@ -23,7 +23,6 @@ const UserInfo = ({ user }: UserInfoProps) => {
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const avatarFallback = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
   const fullName = `${user.firstName} ${user.lastName}`;
 
   return (
@@ -41,13 +40,7 @@ const UserInfo = ({ user }: UserInfoProps) => {
           </div>
 
           <div className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Avatar className="border-background size-32 shrink-0 border-4">
-              <AvatarImage
-                src={user.avatarUrl}
-                alt={`${user.firstName} ${user.lastName} avatar`}
-              />
-              <AvatarFallback>{avatarFallback}</AvatarFallback>
-            </Avatar>
+            <UserAvatarCropper user={user} />
           </div>
         </div>
 

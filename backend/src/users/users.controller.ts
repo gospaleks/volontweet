@@ -8,11 +8,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
+
+import { ImageUploadInterceptor } from 'src/common/interceptors/image-upload.interceptor';
 
 import { UsersService } from './users.service';
 
@@ -34,6 +39,16 @@ export class UsersController {
     }
 
     return this.usersService.updateUserInfo(user.sub, updateUserDto);
+  }
+
+  @Put('avatar')
+  @UseInterceptors(ImageUploadInterceptor())
+  updateUserAvatar(
+    @Req() request: Request,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.usersService.updateUserAvatar(user.sub, image);
   }
 
   @Get('suggestions')
