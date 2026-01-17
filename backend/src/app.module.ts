@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Neo4jModule } from 'nest-neo4j';
 
+import { JwtGlobalModule } from './jwt/jwt.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { UsersModule } from './users/users.module';
@@ -34,8 +35,9 @@ import { NotificationsModule } from './notifications/notifications.module';
       useFactory: (configService: ConfigService) =>
         createNeo4jOptions(configService),
     }),
-    RedisModule,
+    JwtGlobalModule,
     AuthModule,
+    RedisModule,
     UsersModule,
     TweetsModule,
     HashtagsModule,
