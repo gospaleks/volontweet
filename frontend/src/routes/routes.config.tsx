@@ -14,6 +14,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import UsersPage from '@/pages/UsersPage';
 import UserDetailsPage from '@/pages/UserDetails';
 import UserFollowsPage from '@/pages/UserFollows';
+import NotificationsPage from '@/pages/Notifications';
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
           { path: '/users/:username', element: <UserDetailsPage /> },
           { path: '/users/:username/followers', element: <UserFollowsPage /> },
           { path: '/users/:username/following', element: <UserFollowsPage /> },
+          { path: '/notifications', element: <NotificationsPage /> },
         ],
       },
     ],

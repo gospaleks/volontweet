@@ -22,4 +22,8 @@ export const API_ENDPOINTS = {
   USER_FOLLOWERS: (username: string) => `/users/${username}/followers`, // Infinite scroll (queryParams: page, size)
   USER_FOLLOWING: (username: string) => `/users/${username}/following`, // Infinite scroll (queryParams: page, size)
   UPLOAD_USER_AVATAR: '/users/avatar',
+
+  NOTIFICATIONS: '/notifications', // Infinite scroll (queryParams: page, size)
+  DELETE_NOTIFICATION: (notificationId: string) =>
+    `/notifications/${notificationId}`,
 };
