@@ -161,7 +161,12 @@ export class TweetsService {
       this.notificationEmitter.tweetLiked({
         targetUserId: author.id,
         actor: me,
-        tweet,
+        tweet: {
+          ...tweet,
+          createdAt: new Date(tweet.createdAt.toString()).toISOString(),
+          mentions: tweet.mentionsJson ? JSON.parse(tweet.mentionsJson) : [],
+          mentionsJson: undefined,
+        },
       });
     }
 

@@ -19,14 +19,35 @@ export class NotificationsService {
     private readonly redisService: RedisService,
   ) {}
 
+  async getNotificationsForUser(userId: string, page: number, size: number) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const notifications = await this.notificationRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+      take: internalLimit,
+      skip,
+    });
+
+    const hasNextPage = notifications.length > size;
+    const data = hasNextPage ? notifications.slice(0, size) : notifications;
+
+    return {
+      data,
+      hasNextPage,
+      nextPage: hasNextPage ? page + 1 : page,
+    };
+  }
+
   async createFromTweetLiked(event: TweetLikedEvent) {
     try {
       const notification = this.notificationRepository.create({
         userId: event.targetUserId,
         type: NotificationType.TWEET_LIKED,
         payload: {
-          actorId: event.actor.id,
-          tweetId: event.tweet.id,
+          actor: event.actor,
+          tweet: event.tweet,
         },
       });
 
@@ -56,7 +77,7 @@ export class NotificationsService {
         userId: event.targetUserId,
         type: NotificationType.USER_FOLLOWED,
         payload: {
-          actorId: event.actor.id,
+          actor: event.actor,
         },
       });
 

@@ -9,6 +9,7 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationEmitter } from './emitters/notification.emitter';
 import { NotificationsListener } from './listeners/notifications.listener';
+import { NotificationsController } from './notifications.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Notification, User]), RedisModule],
@@ -19,5 +20,6 @@ import { NotificationsListener } from './listeners/notifications.listener';
     NotificationsListener,
   ],
   exports: [NotificationEmitter],
+  controllers: [NotificationsController],
 })
 export class NotificationsModule {}
