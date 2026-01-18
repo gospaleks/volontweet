@@ -100,7 +100,7 @@ export class NotificationsService {
     }
   }
 
-  async deleteNotification(currentUserId: string, notificationId: string) {
+  async deleteNotification(notificationId: string, currentUserId: string) {
     try {
       const notification = await this.notificationRepository.findOne({
         where: { id: notificationId, userId: currentUserId },
@@ -111,6 +111,8 @@ export class NotificationsService {
       }
 
       await this.notificationRepository.remove(notification);
+
+      return { message: 'Notification deleted successfully' };
     } catch (err) {
       throw new BadRequestException('Failed to delete notification');
     }

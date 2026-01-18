@@ -1,7 +1,9 @@
 import {
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
+  Param,
   ParseIntPipe,
   Query,
   Req,
@@ -16,7 +18,7 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
-  async getNotifications(
+  getNotifications(
     @Req() request: Request,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
@@ -26,6 +28,18 @@ export class NotificationsController {
       user.sub,
       page,
       size,
+    );
+  }
+
+  @Delete(':id')
+  deleteNotification(
+    @Param('id') notificationId: string,
+    @Req() request: Request,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.notificationsService.deleteNotification(
+      notificationId,
+      user.sub,
     );
   }
 }
