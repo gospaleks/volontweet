@@ -20,7 +20,7 @@ const LikeNotification = ({ notification }: LikeNotificationProps) => {
 
   return (
     <div className="flex flex-col gap-2 border-b p-4">
-      <NotificationHeader notification={notification} text="liked your tweet" />
+      <NotificationHeader notification={notification} />
 
       <div className="bg-card relative rounded-4xl border p-4">
         <div
@@ -39,7 +39,7 @@ const LikeNotification = ({ notification }: LikeNotificationProps) => {
         <Button
           type="button"
           variant="secondary"
-          size="icon-xs"
+          size="icon"
           onClick={() => setIsTweetExpanded((prev) => !prev)}
           className="absolute right-2 bottom-2"
         >

@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import type { Notification } from '@/types/notification.types';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -27,3 +29,14 @@ export function formatRelativeDate(date: Date | string | number): string {
 
   return `${years}y ago`;
 }
+
+export const getNotificationTextByType = (type: Notification['type']) => {
+  switch (type) {
+    case 'TWEET_LIKED':
+      return 'liked your tweet';
+    case 'USER_FOLLOWED':
+      return 'started following you';
+    default:
+      return '';
+  }
+};

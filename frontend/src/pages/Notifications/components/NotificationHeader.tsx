@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { formatRelativeDate } from '@/lib/utils';
+import { formatRelativeDate, getNotificationTextByType } from '@/lib/utils';
 
 import type { Notification } from '@/types/notification.types';
 
@@ -8,13 +8,9 @@ import NotificationDropdown from './NotificationDropdown';
 
 type NotificationHeaderProps = {
   notification: Notification;
-  text: string;
 };
 
-const NotificationHeader = ({
-  notification,
-  text,
-}: NotificationHeaderProps) => {
+const NotificationHeader = ({ notification }: NotificationHeaderProps) => {
   const user = notification.payload.actor;
   const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
@@ -34,7 +30,7 @@ const NotificationHeader = ({
             <span className="font-bold underline-offset-4 group-hover:underline">
               {user.firstName} {user.lastName}{' '}
             </span>
-            {text}
+            {getNotificationTextByType(notification.type)}
           </div>
 
           <span className="text-muted-foreground text-sm">

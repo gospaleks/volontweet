@@ -16,7 +16,7 @@ export const useDeleteNotificationMutation = (notificationId: string) => {
     {
       onSuccess: ({ message }) => {
         queryClient.invalidateQueries({
-          queryKey: [API_ENDPOINTS.NOTIFICATIONS, { size: '20' }],
+          queryKey: [API_ENDPOINTS.NOTIFICATIONS],
         });
 
         toast.success(message);

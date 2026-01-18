@@ -1,11 +1,16 @@
+import { useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PackageSearchIcon } from '@hugeicons/core-free-icons';
+import { toast } from 'sonner';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 import type { Notification } from '@/types/notification.types';
+
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useNotificationsActions } from '@/stores/notifications.store';
 
 import H3 from '@/components/ui/typography/H3';
 import { Spinner } from '@/components/ui/spinner';
@@ -18,15 +23,15 @@ import {
 } from '@/components/ui/empty';
 
 import Header from '@/components/Header';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PackageSearchIcon } from '@hugeicons/core-free-icons';
 import LikeNotification from './components/LikeNotification';
 import FollowNotification from './components/FollowNotification';
 
 const NotificationsPage = () => {
+  const { resetUnread } = useNotificationsActions();
+
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery<InfiniteResponse<Notification>>({
-      queryKey: [API_ENDPOINTS.NOTIFICATIONS, { size: '20' }],
+      queryKey: [API_ENDPOINTS.NOTIFICATIONS],
       initialPageParam: 1,
       getNextPageParam: (lastPage) =>
         lastPage.hasNextPage ? lastPage.nextPage : undefined,
@@ -40,7 +45,10 @@ const NotificationsPage = () => {
 
   const notifications = data?.pages.flatMap((page) => page.data) || [];
 
-  console.log(notifications);
+  useEffect(() => {
+    toast.dismiss();
+    resetUnread();
+  }, [resetUnread]);
 
   return (
     <div className="flex h-full flex-col">
@@ -82,6 +90,8 @@ const NotificationsPage = () => {
                     notification={notification as Notification<'USER_FOLLOWED'>}
                   />
                 );
+              default:
+                return null;
             }
           })}
         </div>

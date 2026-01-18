@@ -9,10 +9,7 @@ type FollowNotificationProps = {
 const FollowNotification = ({ notification }: FollowNotificationProps) => {
   return (
     <div className="flex flex-col gap-2 border-b p-4">
-      <NotificationHeader
-        notification={notification}
-        text="started following you"
-      />
+      <NotificationHeader notification={notification} />
     </div>
   );
 };
