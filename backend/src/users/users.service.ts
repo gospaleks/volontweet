@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
 import { transformNeo4jTypes } from 'src/common/utils/neo4j-utils';
 
@@ -27,6 +28,7 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly neo4jService: Neo4jService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationEmitter: NotificationEmitter,
   ) {}
 
   async getUsersConnections(
@@ -148,6 +150,17 @@ export class UsersService {
 
     if (result.records.length === 0) {
       throw new NotFoundException('User not found');
+    }
+
+    const me = result.records[0].get('me').properties;
+    const followed = result.records[0].get('followed');
+
+    // Emit notification if user is followed (not unfollowed)
+    if (followed) {
+      this.notificationEmitter.userFollowed({
+        targetUserId: followedId,
+        actor: me,
+      });
     }
 
     return { followed: result.records[0].get('followed') };

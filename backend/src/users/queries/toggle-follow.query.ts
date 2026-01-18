@@ -11,5 +11,5 @@ export const TOGGLE_FOLLOW_USER_QUERY = /* cypher */ `
     CREATE (me)-[:FOLLOWS]->(target)
   )
   
-  RETURN r IS NULL as followed
+  RETURN r IS NULL as followed, me
 `;

@@ -18,6 +18,7 @@ import { createTypeOrmOptions } from './database/typeorm.config';
 import { createNeo4jOptions } from './database/neo4j.config';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -34,6 +35,11 @@ import { NotificationsModule } from './notifications/notifications.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         createNeo4jOptions(configService),
+    }),
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+      maxListeners: 10,
     }),
     JwtGlobalModule,
     AuthModule,

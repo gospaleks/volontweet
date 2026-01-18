@@ -11,6 +11,7 @@ import { CLOUDINARY_TWEETS_FOLDER } from 'src/cloudinary/constants';
 import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
 import { TweetDto } from './dto/tweet.dto';
 import { CreateTweetDto, Mention } from './dto/create-tweet.dto';
@@ -29,6 +30,7 @@ export class TweetsService {
     private readonly neo4jService: Neo4jService,
     private readonly redisService: RedisService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationEmitter: NotificationEmitter,
   ) {}
 
   async createTweet(
@@ -148,10 +150,24 @@ export class TweetsService {
     }
 
     const record = result.records[0];
+    const isLiked = record.get('isLiked');
+    const likesCount = toNum(record.get('likesCount'));
+    const tweet = record.get('tweet').properties;
+    const author = record.get('author').properties;
+    const me = record.get('me').properties;
+
+    // Emit notification if tweet is liked (not unliked) and liker is not the author
+    if (isLiked && userId !== author.id) {
+      this.notificationEmitter.tweetLiked({
+        targetUserId: author.id,
+        actor: me,
+        tweet,
+      });
+    }
 
     return {
-      isLiked: record.get('isLiked'),
-      likesCount: toNum(record.get('likesCount')),
+      isLiked,
+      likesCount,
     };
   }
 
