@@ -1,4 +1,3 @@
-import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { FavouriteIcon } from '@hugeicons/core-free-icons';
@@ -16,9 +15,9 @@ import {
 } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 
 import TweetDropdownMenu from './TweetDropdownMenu';
+import TweetContent from './TweetContent';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -26,8 +25,6 @@ type TweetDisplayProps = {
 };
 
 const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-
   const { mutate, isPending } = useToggleLikeTweetMutation(
     tweet.id,
     apiEndpoint,
@@ -39,73 +36,6 @@ const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
   const handleToggleLike = () => {
     mutate();
   };
-
-  const renderTweetContent = useCallback(() => {
-    const { content: rawContent, mentions } = tweet;
-
-    const raw = rawContent.replace(/\r\n/g, '\n');
-
-    const segments: React.ReactNode[] = [];
-
-    let keyIndex = 0;
-
-    const pushTextWithNewlines = (text: string) => {
-      const parts = text.split('\n');
-
-      parts.forEach((part, idx) => {
-        if (part.length > 0) {
-          segments.push(part);
-        }
-
-        if (idx < parts.length - 1) {
-          segments.push(<br key={`nl-${keyIndex++}`} />);
-        }
-      });
-    };
-
-    let lastIndex = 0;
-
-    // Sort mentions by start position
-    const sortedMentions = [...mentions].sort((a, b) => a.start - b.start);
-
-    sortedMentions.forEach((mention) => {
-      // Add text before mention
-      if (lastIndex < mention.start) {
-        pushTextWithNewlines(raw.substring(lastIndex, mention.start));
-      }
-
-      // Add mention/hashtag with highlighting
-      if (mention.type === '@') {
-        segments.push(
-          <Link
-            to={`/users/${mention.value}`}
-            key={`${mention.type}-${mention.start}`}
-            className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
-          >
-            @{mention.value}
-          </Link>,
-        );
-      } else {
-        segments.push(
-          <span
-            key={`${mention.type}-${mention.start}`}
-            className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
-          >
-            #{mention.value}
-          </span>,
-        );
-      }
-
-      lastIndex = mention.end;
-    });
-
-    // Add remaining text
-    if (lastIndex < raw.length) {
-      pushTextWithNewlines(raw.substring(lastIndex));
-    }
-
-    return segments;
-  }, [tweet]);
 
   return (
     <div className="flex gap-4 border-b p-4">
@@ -138,27 +68,7 @@ const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
           <TweetDropdownMenu tweet={tweet} apiEndpoint={apiEndpoint} />
         </div>
 
-        {/* Text content with hashtags and mentions */}
-        <div className="text-base leading-relaxed wrap-break-word">
-          {renderTweetContent()}
-        </div>
-
-        {/* Image preview */}
-        {tweet.imageUrl && (
-          <div className="relative h-96 w-full">
-            {!imageLoaded && (
-              <Skeleton className="absolute inset-0 rounded-4xl" />
-            )}
-            <img
-              src={tweet.imageUrl}
-              alt={`Tweet image by ${user.username}`}
-              className={`h-full w-fit rounded-4xl object-cover ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoad={() => setImageLoaded(true)}
-            />
-          </div>
-        )}
+        <TweetContent tweet={tweet} />
 
         {/* Actions */}
         <div className="ml-auto flex items-center">

@@ -11,7 +11,9 @@ import { CLOUDINARY_TWEETS_FOLDER } from 'src/cloudinary/constants';
 import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
+import { TweetDto } from './dto/tweet.dto';
 import { CreateTweetDto, Mention } from './dto/create-tweet.dto';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
@@ -20,6 +22,7 @@ import { GET_USER_TWEETS_QUERY } from './queries/get-user-tweets.query';
 import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
 import { GET_FOR_YOU_TIMELINE } from './queries/get-for-you-timeline.query';
 import { DELETE_TWEET_QUERY } from './queries/delete-tweet.query';
+import { GET_TWEET_BY_ID_QUERY } from './queries/get-tweet-by-id.query';
 
 @Injectable()
 export class TweetsService {
@@ -27,6 +30,7 @@ export class TweetsService {
     private readonly neo4jService: Neo4jService,
     private readonly redisService: RedisService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationEmitter: NotificationEmitter,
   ) {}
 
   async createTweet(
@@ -146,10 +150,29 @@ export class TweetsService {
     }
 
     const record = result.records[0];
+    const isLiked = record.get('isLiked');
+    const likesCount = toNum(record.get('likesCount'));
+    const tweet = record.get('tweet').properties;
+    const author = record.get('author').properties;
+    const me = record.get('me').properties;
+
+    // Emit notification if tweet is liked (not unliked) and liker is not the author
+    if (isLiked && userId !== author.id) {
+      this.notificationEmitter.tweetLiked({
+        targetUserId: author.id,
+        actor: me,
+        tweet: {
+          ...tweet,
+          createdAt: new Date(tweet.createdAt.toString()).toISOString(),
+          mentions: tweet.mentionsJson ? JSON.parse(tweet.mentionsJson) : [],
+          mentionsJson: undefined,
+        },
+      });
+    }
 
     return {
-      isLiked: record.get('isLiked'),
-      likesCount: toNum(record.get('likesCount')),
+      isLiked,
+      likesCount,
     };
   }
 
@@ -200,6 +223,26 @@ export class TweetsService {
     });
 
     return this.processPagination(result.records, size, page);
+  }
+
+  async getTweetById(tweetId: string) {
+    const result = await this.neo4jService.read(GET_TWEET_BY_ID_QUERY, {
+      tweetId,
+    });
+
+    if (result.records.length === 0) {
+      return null;
+    }
+
+    const tweetRecord = result.records[0].get('t');
+    return {
+      ...tweetRecord,
+      createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
+      mentionsJson: undefined,
+      mentions: tweetRecord.mentionsJson
+        ? JSON.parse(tweetRecord.mentionsJson)
+        : [],
+    } as TweetDto;
   }
 
   private processPagination(records: any[], size: number, page: number) {
