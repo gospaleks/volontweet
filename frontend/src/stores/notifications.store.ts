@@ -8,6 +8,7 @@ type NotificationState = {
   incrementUnread: () => void;
   decrementUnread: () => void;
   resetUnread: () => void;
+  setUnreadCount: (count: number) => void;
 };
 
 export const useNotificationsStore = create<NotificationState>((set) => ({
@@ -24,6 +25,11 @@ export const useNotificationsStore = create<NotificationState>((set) => ({
     })),
 
   resetUnread: () => set({ unreadCount: 0 }),
+
+  setUnreadCount: (count) =>
+    set({
+      unreadCount: Math.max(0, count),
+    }),
 }));
 
 export const useUnreadNotificationsCount = () =>
@@ -35,5 +41,6 @@ export const useNotificationsActions = () =>
       incrementUnread: s.incrementUnread,
       decrementUnread: s.decrementUnread,
       resetUnread: s.resetUnread,
+      setUnreadCount: s.setUnreadCount,
     })),
   );

@@ -40,6 +40,27 @@ export class NotificationsService {
     };
   }
 
+  async getUnreadNotificationsCount(userId: string) {
+    const count = await this.notificationRepository.count({
+      where: { userId, isRead: false },
+    });
+
+    return { unreadCount: count };
+  }
+
+  async markAllAsRead(userId: string) {
+    try {
+      const result = await this.notificationRepository.update(
+        { userId, isRead: false },
+        { isRead: true },
+      );
+
+      return { markedAsRead: result.affected ?? 0 };
+    } catch (error) {
+      throw new BadRequestException('Failed to mark notifications as read');
+    }
+  }
+
   async createFromTweetLiked(event: TweetLikedEvent) {
     try {
       const notification = this.notificationRepository.create({

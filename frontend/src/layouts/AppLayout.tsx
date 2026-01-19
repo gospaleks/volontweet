@@ -4,12 +4,14 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { setNavigator } from '@/lib/navigation';
 
 import { useNotificationsSocket } from '@/hooks/useNotificationsSocket';
+import { useInitNotifications } from '@/hooks/notifications/useInitNotifications';
 
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import LeftSidebar from '@/components/sidebar/LeftSidebar';
 
 const AppLayout = () => {
   useNotificationsSocket();
+  useInitNotifications();
 
   const navigate = useNavigate();
 

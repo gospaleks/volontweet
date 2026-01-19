@@ -9,7 +9,7 @@ export function showNotificationToast(notification: Notification) {
     (id) => (
       <FloatingNotificationCard
         notification={notification}
-        onDissmiss={() => toast.dismiss(id)}
+        onDismiss={() => toast.dismiss(id)}
       />
     ),
     {

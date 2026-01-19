@@ -63,7 +63,9 @@ const LeftSidebar = () => {
               <span>{link.label}</span>
 
               {isNotifications && unreadCount > 0 && (
-                <Badge className="ml-auto">{unreadCount}</Badge>
+                <Badge className="ml-auto">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
               )}
             </NavLink>
           );

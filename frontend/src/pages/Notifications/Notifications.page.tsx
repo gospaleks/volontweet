@@ -9,6 +9,7 @@ import { API_ENDPOINTS } from '@/config/endpoints';
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 import type { Notification } from '@/types/notification.types';
 
+import { useMarkAllAsReadMutation } from '@/hooks/notifications/useMarkAllAsReadMutation';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useNotificationsActions } from '@/stores/notifications.store';
 
@@ -43,12 +44,15 @@ const NotificationsPage = () => {
     isFetchingNextPage,
   });
 
+  const { mutate } = useMarkAllAsReadMutation();
+
   const notifications = data?.pages.flatMap((page) => page.data) || [];
 
   useEffect(() => {
     toast.dismiss();
     resetUnread();
-  }, [resetUnread]);
+    mutate();
+  }, [resetUnread, mutate]);
 
   return (
     <div className="flex h-full flex-col">

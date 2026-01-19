@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   Req,
 } from '@nestjs/common';
@@ -29,6 +30,18 @@ export class NotificationsController {
       page,
       size,
     );
+  }
+
+  @Get('/unread-count')
+  getUnreadNotificationsCount(@Req() request: Request) {
+    const user = request['user'] as JwtPayload;
+    return this.notificationsService.getUnreadNotificationsCount(user.sub);
+  }
+
+  @Post('/mark-all-as-read')
+  markAllAsRead(@Req() request: Request) {
+    const user = request['user'] as JwtPayload;
+    return this.notificationsService.markAllAsRead(user.sub);
   }
 
   @Delete(':id')

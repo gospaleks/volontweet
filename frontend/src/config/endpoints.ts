@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
   UPLOAD_USER_AVATAR: '/users/avatar',
 
   NOTIFICATIONS: '/notifications', // Infinite scroll (queryParams: page, size)
+  NOTIFICATIONS_UNREAD_COUNT: '/notifications/unread-count',
   DELETE_NOTIFICATION: (notificationId: string) =>
     `/notifications/${notificationId}`,
+  MARK_ALL_NOTIFICATIONS_AS_READ: '/notifications/mark-all-as-read',
 };
