@@ -106,6 +106,10 @@ export class RedisService implements OnModuleDestroy {
       : this.publisher.incrby(key, amount);
   }
 
+  async ttl(key: RedisKey | string): Promise<number> {
+    return this.publisher.ttl(key);
+  }
+
   async zscan(
     key: RedisKey,
     pattern: string,
