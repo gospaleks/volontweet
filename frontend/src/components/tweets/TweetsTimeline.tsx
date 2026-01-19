@@ -1,21 +1,14 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PackageSearchIcon, UnavailableIcon } from '@hugeicons/core-free-icons';
+import { UnavailableIcon } from '@hugeicons/core-free-icons';
 
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 import type { Tweet } from '@/types/tweet.type';
 
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
 
+import EmptyState from '@/components/EmptyState';
 import TweetDisplay from '@/components/tweets/TweetDisplay';
 
 type TweetsTimelineProps = {
@@ -56,28 +49,19 @@ const TweetsTimeline = ({
           <Spinner />
         </div>
       ) : isError ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HugeiconsIcon icon={UnavailableIcon} />
-            </EmptyMedia>
-            <EmptyTitle>Unable to load tweets at the moment</EmptyTitle>
-            <EmptyDescription>Please try again later</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <EmptyState
+          title="Unable to load tweets at the moment"
+          description="Please try again later"
+          icon={UnavailableIcon}
+        />
       ) : data && tweets.length === 0 ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HugeiconsIcon icon={PackageSearchIcon} />
-            </EmptyMedia>
-            <EmptyTitle>There are no tweets to show right now</EmptyTitle>
-            <EmptyDescription>
-              {emptyDescription ||
-                'Start interacting with the system to see tweets recommended for you'}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <EmptyState
+          title="There are no tweets to show right now"
+          description={
+            emptyDescription ||
+            'Start interacting with the system to see tweets recommended for you'
+          }
+        />
       ) : (
         <div className="flex flex-col">
           {tweets.map((tweet) => (

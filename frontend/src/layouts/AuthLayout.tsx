@@ -26,7 +26,7 @@ const AuthLayout = () => {
       </div>
 
       <footer className="text-muted-foreground bg-accent w-full border-t py-4 text-center text-sm">
-        © {new Date().getFullYear()} VolonTweet. All rights reserved.
+        &copy; {new Date().getFullYear()} VolonTweet. All rights reserved.
       </footer>
     </div>
   );

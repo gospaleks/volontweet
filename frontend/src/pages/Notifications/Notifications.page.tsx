@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PackageSearchIcon } from '@hugeicons/core-free-icons';
 import { toast } from 'sonner';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
@@ -15,15 +13,9 @@ import { useNotificationsActions } from '@/stores/notifications.store';
 
 import H3 from '@/components/ui/typography/H3';
 import { Spinner } from '@/components/ui/spinner';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
 
 import Header from '@/components/Header';
+import EmptyState from '@/components/EmptyState';
 import LikeNotification from './components/LikeNotification';
 import FollowNotification from './components/FollowNotification';
 
@@ -65,17 +57,10 @@ const NotificationsPage = () => {
           <Spinner />
         </div>
       ) : data && notifications.length === 0 ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HugeiconsIcon icon={PackageSearchIcon} />
-            </EmptyMedia>
-            <EmptyTitle>Nothing too see here yet</EmptyTitle>
-            <EmptyDescription>
-              When you have notifications, they'll show up here.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <EmptyState
+          title="Nothing to see here yet"
+          description="When you have notifications, they'll show up here."
+        />
       ) : (
         <div className="flex flex-col">
           {notifications.map((notification) => {

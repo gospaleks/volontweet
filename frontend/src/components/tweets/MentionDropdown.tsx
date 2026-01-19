@@ -3,6 +3,8 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
 
+import type { Hashtag } from '@/types/hashtag.type';
+
 import type { AuthUser } from '@/stores/auth.store';
 
 import { useHandleClickOutside } from '@/hooks/useHandleClickOutside';
@@ -15,11 +17,6 @@ import {
   CommandGroup,
 } from '@/components/ui/command';
 import { Spinner } from '@/components/ui/spinner';
-
-type Hashtag = {
-  tag: string;
-  count: number;
-};
 
 type MentionDropdownProps = {
   trigger: '@' | '#';

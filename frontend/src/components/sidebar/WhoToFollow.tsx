@@ -11,16 +11,11 @@ import type { UserDetails } from '@/types/user.types';
 import type { InfiniteResponse } from '@/types/infiniteResponse.type';
 
 import { buttonVariants } from '@/components/ui/button';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import H4 from '@/components/ui/typography/H4';
 
+import EmptyState from '@/components/EmptyState';
 import RecommendedUser from '@/components/RecommendedUser/RecommendedUser';
 import RecommendedUserSkeleton from '@/components/RecommendedUser/RecommendedUserSkeleton';
 
@@ -51,17 +46,11 @@ const WhoToFollow = () => {
           ))}
         </div>
       ) : (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <HugeiconsIcon icon={UserMultiple02Icon} />
-            </EmptyMedia>
-            <EmptyTitle>No recommended users at the moment</EmptyTitle>
-            <EmptyDescription>
-              Follow more users to get better recommendations.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <EmptyState
+          title="No recommended users at the moment"
+          description="Follow more users to get better recommendations."
+          icon={UserMultiple02Icon}
+        />
       )}
 
       {users && users.data.length > 0 && (
