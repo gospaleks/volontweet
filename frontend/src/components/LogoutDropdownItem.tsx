@@ -7,10 +7,10 @@ import { useLogoutMutation } from '@/hooks/auth/useLogoutMutation';
 
 import { useAuthActions } from '@/stores/auth.store';
 
-import { Button } from '@/components/ui/button';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Spinner } from '@/components/ui/spinner';
 
-const LogoutButton = () => {
+const LogoutDropdownItem = () => {
   const navigate = useNavigate();
 
   const { logout } = useAuthActions();
@@ -27,17 +27,15 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button
+    <DropdownMenuItem
+      variant="destructive"
       onClick={handleLogout}
       disabled={isPending}
-      variant="ghost"
-      size="lg"
-      className="w-full justify-start"
     >
       {isPending ? <Spinner /> : <HugeiconsIcon icon={Logout05Icon} />}
       Logout
-    </Button>
+    </DropdownMenuItem>
   );
 };
 
-export default LogoutButton;
+export default LogoutDropdownItem;

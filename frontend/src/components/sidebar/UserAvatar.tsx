@@ -1,39 +1,21 @@
-import { useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Logout05Icon, MoreHorizontalIcon } from '@hugeicons/core-free-icons';
+import { MoreHorizontalIcon } from '@hugeicons/core-free-icons';
 
-import { useAuthActions, useAuthUser } from '@/stores/auth.store';
-
-import { useLogoutMutation } from '@/hooks/auth/useLogoutMutation';
+import { useAuthUser } from '@/stores/auth.store';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Spinner } from '@/components/ui/spinner';
 
 import { ThemeDropdownMenuItem } from '../ThemeToggle';
+import LogoutDropdownItem from '../LogoutDropdownItem';
 
 const UserAvatar = () => {
-  const navigate = useNavigate();
-
   const user = useAuthUser();
-
-  const { logout } = useAuthActions();
-
-  const { mutate, isPending } = useLogoutMutation();
-
-  const handleLogout = () => {
-    mutate(undefined, {
-      onSuccess: () => {
-        logout();
-        navigate('/login', { replace: true });
-      },
-    });
-  };
 
   if (!user) return null;
 
@@ -58,15 +40,9 @@ const UserAvatar = () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
+        <LogoutDropdownItem />
+        <DropdownMenuSeparator />
         <ThemeDropdownMenuItem />
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={handleLogout}
-          disabled={isPending}
-        >
-          {isPending ? <Spinner /> : <HugeiconsIcon icon={Logout05Icon} />}
-          Logout
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

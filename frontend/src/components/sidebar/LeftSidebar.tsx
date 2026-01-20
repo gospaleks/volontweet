@@ -1,14 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AllBookmarkIcon,
-  FavouriteIcon,
-  HomeIcon,
-  Notification02Icon,
-  UserIcon,
-} from '@hugeicons/core-free-icons';
 
 import { cn } from '@/lib/utils';
+
+import { sidebarLinks } from '@/config/sidebarLinks';
 
 import { useAuthUser } from '@/stores/auth.store';
 import { useUnreadNotificationsCount } from '@/stores/notifications.store';
@@ -18,14 +13,6 @@ import { Badge } from '@/components/ui/badge';
 
 import Logo from '@/components/Logo';
 import UserAvatar from './UserAvatar';
-
-const sidebarLinks = [
-  { label: 'Home', to: '/', icon: HomeIcon },
-  { label: 'Notifications', to: '/notifications', icon: Notification02Icon },
-  { label: 'Liked', to: '/liked', icon: FavouriteIcon },
-  { label: 'Bookmarked', to: '/bookmarks', icon: AllBookmarkIcon },
-  { label: 'Profile', to: '/users', icon: UserIcon },
-];
 
 const LeftSidebar = () => {
   const user = useAuthUser();
