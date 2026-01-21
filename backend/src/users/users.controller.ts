@@ -51,6 +51,16 @@ export class UsersController {
     return this.usersService.updateUserAvatar(user.sub, image);
   }
 
+  @Put('banner')
+  @UseInterceptors(ImageUploadInterceptor())
+  updateUserBanner(
+    @Req() request: Request,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.usersService.updateUserBanner(user.sub, image);
+  }
+
   @Get('suggestions')
   getUserSuggestions(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
