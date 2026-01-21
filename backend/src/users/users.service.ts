@@ -20,7 +20,10 @@ import { TOGGLE_FOLLOW_USER_QUERY } from './queries/toggle-follow.query';
 import { GET_USER_DETAILS_QUERY } from './queries/get-user-details.query';
 import { GET_USER_FOLLOWERS_QUERY } from './queries/get-followers.query';
 import { GET_USER_FOLLOWING_QUERY } from './queries/get-following.query';
-import { CLOUDINARY_AVATARS_FOLDER } from 'src/cloudinary/constants';
+import {
+  CLOUDINARY_AVATARS_FOLDER,
+  CLOUDINARY_BANNERS_FOLDER,
+} from 'src/cloudinary/constants';
 
 @Injectable()
 export class UsersService {
@@ -191,11 +194,11 @@ export class UsersService {
       try {
         await this.neo4jService.write(
           /* cypher */ `
-        MATCH (u:User {id: $userId})
-        SET u.avatarUrl = $avatarUrl
-        SET u.avatarPublicId = $avatarPublicId
-        RETURN u
-        `,
+          MATCH (u:User {id: $userId})
+          SET u.avatarUrl = $avatarUrl
+          SET u.avatarPublicId = $avatarPublicId
+          RETURN u
+          `,
           {
             userId,
             avatarUrl: uploadResult.secure_url,
@@ -220,6 +223,44 @@ export class UsersService {
     } catch (error) {
       console.error('Error updating user avatar:', error);
       throw new BadRequestException('Failed to update avatar');
+    }
+  }
+
+  async updateUserBanner(userId: string, image: Express.Multer.File) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      // Upload image to Cloudinary
+      const uploadResult = await this.cloudinaryService.uploadImage(
+        image.buffer,
+        `${CLOUDINARY_BANNERS_FOLDER}/${userId}`,
+      );
+
+      // Save tp Neo4j
+      await this.neo4jService.write(
+        /* cypher */ `
+        MATCH (u:User {id: $userId})
+        SET u.bannerUrl = $bannerUrl
+        SET u.bannerPublicId = $bannerPublicId
+        RETURN u
+        `,
+        {
+          userId,
+          bannerUrl: uploadResult.secure_url,
+          bannerPublicId: uploadResult.public_id,
+        },
+      );
+
+      return {
+        bannerUrl: uploadResult.secure_url,
+      };
+    } catch (error) {
+      console.error('Error updating user banner:', error);
+      throw new BadRequestException('Failed to update banner');
     }
   }
 
