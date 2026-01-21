@@ -13,6 +13,7 @@ import H2 from '@/components/ui/typography/H2';
 import FollowButton from '@/components/FollowButton';
 import UserInfoFormDialog from './UserInfoFormDialog';
 import UserAvatarCropper from './UserAvatarCropper';
+import UserBanner from './UserBanner';
 
 type UserInfoProps = {
   user: UserDetails;
@@ -24,25 +25,16 @@ const UserInfo = ({ user }: UserInfoProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const fullName = `${user.firstName} ${user.lastName}`;
+  const canEditProfile = currentUser?.id === user.id;
 
   return (
     <>
       <div className="flex flex-col">
-        <div className="relative">
-          <div className="bg-muted h-48 w-full overflow-hidden">
-            {user.bannerUrl && (
-              <img
-                src={user.bannerUrl}
-                alt={`${user.firstName} ${user.lastName} banner`}
-                className="h-full w-full object-cover"
-              />
-            )}
-          </div>
-
+        <UserBanner user={user}>
           <div className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-1/2">
             <UserAvatarCropper user={user} />
           </div>
-        </div>
+        </UserBanner>
 
         <div className="flex flex-col gap-4 border-b p-4 pt-18">
           <div className="flex items-start justify-between gap-4">
@@ -51,7 +43,7 @@ const UserInfo = ({ user }: UserInfoProps) => {
               <div className="text-muted-foreground">@{user.username}</div>
             </div>
 
-            {currentUser?.id === user.id ? (
+            {canEditProfile ? (
               <Button onClick={() => setIsEditDialogOpen(true)}>
                 <HugeiconsIcon icon={PencilEdit01Icon} />
                 Edit profile
