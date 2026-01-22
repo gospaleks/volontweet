@@ -233,7 +233,7 @@ export class TweetsService {
     });
 
     if (result.records.length === 0) {
-      return null;
+      throw new NotFoundException('Tweet not found');
     }
 
     const tweetRecord = result.records[0].get('t');
