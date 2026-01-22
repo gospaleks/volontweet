@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   LOGOUT: `/auth/logout`,
 
   TWEETS: '/tweets',
+  TWEET_BY_ID: (tweetId: string) => `/tweets/${tweetId}`,
   TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
   DELETE_TWEET: (tweetId: string) => `/tweets/${tweetId}`,
 

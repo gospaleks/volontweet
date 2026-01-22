@@ -22,12 +22,18 @@ import TweetContent from './TweetContent';
 type TweetDisplayProps = {
   tweet: Tweet;
   apiEndpoint: string;
+  nonClickable?: boolean;
 };
 
-const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
+const TweetDisplay = ({
+  tweet,
+  apiEndpoint,
+  nonClickable = false,
+}: TweetDisplayProps) => {
   const { mutate, isPending } = useToggleLikeTweetMutation(
     tweet.id,
     apiEndpoint,
+    nonClickable,
   );
 
   const user = tweet.author;
@@ -68,7 +74,7 @@ const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
           <TweetDropdownMenu tweet={tweet} apiEndpoint={apiEndpoint} />
         </div>
 
-        <TweetContent tweet={tweet} />
+        <TweetContent tweet={tweet} nonClickable={nonClickable} />
 
         {/* Actions */}
         <div className="ml-auto flex items-center">
