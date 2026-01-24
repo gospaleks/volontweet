@@ -77,4 +77,14 @@ export class TweetsController {
     const user = req['user'] as JwtPayload;
     return this.tweetsService.getUserTweets(targetUserId, user.sub, page, size);
   }
+
+  @Get('liked')
+  async getLikedTweets(
+    @Req() req: Request,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+  ) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.getLikedTweets(user.sub, page, size);
+  }
 }

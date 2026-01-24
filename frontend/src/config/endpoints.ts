@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   FEED_FOLLOWING: '/tweets/feed/following', // Infinite scroll (queryParams: page, size)
   FEED_FOR_YOU: '/tweets/feed/for-you', // Infinite scroll (queryParams: page, size)
   TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`, // Infinite scroll (queryParams: page, size)
+  LIKED_TWEETS: '/tweets/liked', // Infinite scroll (queryParams: page, size)
 
   TRENDING_HASHTAGS: '/hashtags/trending',
 

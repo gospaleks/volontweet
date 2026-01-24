@@ -15,6 +15,7 @@ import UsersPage from '@/pages/UsersPage';
 import UserDetailsPage from '@/pages/UserDetails';
 import UserFollowsPage from '@/pages/UserFollows';
 import NotificationsPage from '@/pages/Notifications';
+import UserLikesPage from '@/pages/UserLikes';
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
           { path: '/users/:username/followers', element: <UserFollowsPage /> },
           { path: '/users/:username/following', element: <UserFollowsPage /> },
           { path: '/notifications', element: <NotificationsPage /> },
+          { path: '/liked', element: <UserLikesPage /> },
         ],
       },
     ],

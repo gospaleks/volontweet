@@ -23,6 +23,7 @@ import { TOGGLE_LIKE_QUERY } from './queries/toggle-like.query';
 import { GET_FOR_YOU_TIMELINE } from './queries/get-for-you-timeline.query';
 import { DELETE_TWEET_QUERY } from './queries/delete-tweet.query';
 import { GET_TWEET_BY_ID_QUERY } from './queries/get-tweet-by-id.query';
+import { GET_LIKED_TWEETS } from './queries/get-liked-tweets.query';
 
 @Injectable()
 export class TweetsService {
@@ -243,6 +244,18 @@ export class TweetsService {
         ? JSON.parse(tweetRecord.mentionsJson)
         : [],
     } as TweetDto;
+  }
+
+  async getLikedTweets(currentUserId: string, page: number, size: number) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_LIKED_TWEETS, {
+      currentUserId,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+    return this.processPagination(result.records, size, page);
   }
 
   private processPagination(records: any[], size: number, page: number) {
