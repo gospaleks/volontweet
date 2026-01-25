@@ -19,6 +19,7 @@ import { createNeo4jOptions } from './database/neo4j.config';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     HashtagsModule,
     CloudinaryModule,
     NotificationsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
