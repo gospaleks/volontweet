@@ -51,6 +51,10 @@ export const useToggleLikeTweetMutation = (
             };
           },
         );
+
+        queryClient.invalidateQueries({
+          queryKey: [API_ENDPOINTS.LIKED_TWEETS],
+        });
       },
       onError: (error) => {
         console.error(error);
