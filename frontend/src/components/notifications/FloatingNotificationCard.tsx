@@ -2,7 +2,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRightIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
 
 import { navigateTo } from '@/lib/navigation';
-import { getNotificationTextByType } from '@/lib/utils';
+import { getAvatarFallback, getNotificationTextByType } from '@/lib/utils';
 
 import type { Notification } from '@/types/notification.types';
 
@@ -54,7 +54,6 @@ const FloatingNotificationCard = ({
   onDismiss,
 }: FloatingNotificationCardProps) => {
   const user = notification.payload.actor;
-  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   return (
     <div className="bg-card flex flex-col gap-2 rounded-2xl border p-4 shadow-xl">
@@ -62,7 +61,7 @@ const FloatingNotificationCard = ({
         <div className="flex items-center gap-2">
           <Avatar className="size-10 shrink-0">
             <AvatarImage src={user.avatarUrl} />
-            <AvatarFallback>{avatarFallback}</AvatarFallback>
+            <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
           </Avatar>
 
           <div className="flex flex-col">

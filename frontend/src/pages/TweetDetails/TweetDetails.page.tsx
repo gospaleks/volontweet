@@ -10,6 +10,8 @@ import { Spinner } from '@/components/ui/spinner';
 import Header from '@/components/Header';
 import EmptyState from '@/components/EmptyState';
 import TweetDisplay from '@/components/tweets/TweetDisplay';
+import TweetComents from '@/components/tweets/TweetComents';
+import TweetCommentForm from './components/TweetCommentForm';
 
 const TweetDetailsPage = () => {
   const { tweetId } = useParams<{ tweetId: string }>();
@@ -33,12 +35,19 @@ const TweetDetailsPage = () => {
           description="The tweet you are looking for could not be found."
         />
       ) : (
-        <TweetDisplay
-          tweet={data}
-          apiEndpoint={API_ENDPOINTS.TWEET_BY_ID(data.id)}
-          nonClickable
-        />
+        <>
+          <TweetDisplay
+            tweet={data}
+            apiEndpoint={API_ENDPOINTS.TWEET_BY_ID(data.id)}
+            nonClickable
+          />
+          <div className="border-b p-4">
+            <TweetCommentForm tweetId={tweetId!} />
+          </div>
+        </>
       )}
+
+      <TweetComents tweetId={tweetId} isParentLoading={isLoading} />
     </div>
   );
 };

@@ -30,6 +30,11 @@ export const useToggleLikeTweetMutation = (
           queryClient.invalidateQueries({
             queryKey: [API_ENDPOINTS.TWEET_BY_ID(tweetId)],
           });
+
+          queryClient.invalidateQueries({
+            queryKey: [API_ENDPOINTS.LIKED_TWEETS],
+          });
+
           return;
         }
 

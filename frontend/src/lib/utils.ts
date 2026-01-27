@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import type { AuthUser } from '@/stores/auth.store';
+
 import type { Notification } from '@/types/notification.types';
 
 export function cn(...inputs: ClassValue[]) {
@@ -40,3 +42,9 @@ export const getNotificationTextByType = (type: Notification['type']) => {
       return '';
   }
 };
+
+export const getUserFullName = (user: AuthUser) =>
+  `${user.firstName} ${user.lastName}`;
+
+export const getAvatarFallback = (user: AuthUser) =>
+  user.firstName.charAt(0) + user.lastName.charAt(0);

@@ -14,6 +14,10 @@ export const API_ENDPOINTS = {
   TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`, // Infinite scroll (queryParams: page, size)
   LIKED_TWEETS: '/tweets/liked', // Infinite scroll (queryParams: page, size)
 
+  POST_TWEET_COMMENT: (tweetId: string) => `/comments/${tweetId}`,
+  COMMENTS_BY_TWEET_ID: (tweetId: string) => `/comments/${tweetId}`, // Infinite scroll (queryParams: page, size)
+  DELETE_TWEET_COMMENT: (commentId: string) => `/comments/${commentId}`,
+
   TRENDING_HASHTAGS: '/hashtags/trending',
 
   USERS: '/users',

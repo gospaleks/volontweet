@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { FavouriteIcon } from '@hugeicons/core-free-icons';
 
-import { formatRelativeDate } from '@/lib/utils';
+import { formatRelativeDate, getAvatarFallback } from '@/lib/utils';
 
 import type { Tweet } from '@/types/tweet.type';
 
@@ -37,7 +37,6 @@ const TweetDisplay = ({
   );
 
   const user = tweet.author;
-  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   const handleToggleLike = () => {
     mutate();
@@ -48,7 +47,7 @@ const TweetDisplay = ({
       <Link to={`/users/${user.username}`}>
         <Avatar className="size-11 shrink-0">
           <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
         </Avatar>
       </Link>
 
