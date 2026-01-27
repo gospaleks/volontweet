@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { Neo4jService } from 'nest-neo4j';
+import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
 
@@ -14,12 +15,15 @@ import { DELETE_COMMENT_QUERY } from './queries/delete-comment.query';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly neo4jService: Neo4jService) {}
+  constructor(
+    private readonly neo4jService: Neo4jService,
+    private readonly notificationEmitter: NotificationEmitter,
+  ) {}
 
   async createComment(
     tweetId: string,
     currentUserId: string,
-    comment: CreateCommentDto,
+    commentDto: CreateCommentDto,
   ) {
     try {
       const commentId = crypto.randomUUID();
@@ -28,25 +32,32 @@ export class CommentsService {
         currentUserId,
         tweetId,
         commentId,
-        content: comment.content,
+        content: commentDto.content,
       });
 
       if (result.records.length === 0) {
         throw new NotFoundException('Tweet or User not found');
       }
 
-      const tweetAuthorId = result.records[0].get('tweetAuthorId');
+      const author = result.records[0].get('author').properties;
+      const me = result.records[0].get('me').properties;
+      const tweet = result.records[0].get('tweet');
+      const comment = result.records[0].get('comment');
 
-      if (tweetAuthorId !== currentUserId) {
-        // TODO: Emit notification to tweetAuthorId about the new comment
+      if (author.id !== currentUserId) {
+        this.notificationEmitter.tweetCommented({
+          targetUserId: author.id,
+          actor: me,
+          tweet: {
+            ...tweet,
+            mentions: tweet.mentionsJson ? JSON.parse(tweet.mentionsJson) : [],
+            mentionsJson: undefined,
+          },
+          comment,
+        });
       }
 
-      const commentRecord = result.records[0].get('comment');
-
-      return {
-        ...commentRecord,
-        createdAt: new Date(commentRecord.createdAt.toString()).toISOString(),
-      };
+      return comment;
     } catch (error) {
       console.error('Error creating comment:', error);
       throw new BadRequestException('Failed to create comment');

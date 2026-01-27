@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRightIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
 
@@ -8,6 +9,7 @@ import type { Notification } from '@/types/notification.types';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { API_ENDPOINTS } from '@/config/endpoints';
 
 type FloatingNotificationCardProps = {
   notification: Notification;
@@ -23,6 +25,8 @@ const NotificationBody = ({
   notification,
   onDismiss,
 }: NotificationBodyProps) => {
+  const queryClient = useQueryClient();
+
   switch (notification.type) {
     case 'TWEET_LIKED': {
       const likedNotification = notification as Notification<'TWEET_LIKED'>;
@@ -35,6 +39,36 @@ const NotificationBody = ({
             variant="link"
             onClick={() => {
               navigateTo(`/tweets/${likedNotification.payload.tweet.id}`);
+              onDismiss();
+            }}
+            className="ml-auto"
+          >
+            View tweet <HugeiconsIcon icon={ArrowRightIcon} />
+          </Button>
+        </div>
+      );
+    }
+    case 'TWEET_COMMENTED': {
+      const commentedNotification =
+        notification as Notification<'TWEET_COMMENTED'>;
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          API_ENDPOINTS.COMMENTS_BY_TWEET_ID(
+            commentedNotification.payload.tweet.id,
+          ),
+        ],
+      });
+
+      return (
+        <div className="flex flex-col gap-2">
+          <p className="line-clamp-3 overflow-hidden text-sm text-ellipsis whitespace-pre-wrap">
+            {commentedNotification.payload.comment.content}
+          </p>
+          <Button
+            variant="link"
+            onClick={() => {
+              navigateTo(`/tweets/${commentedNotification.payload.tweet.id}`);
               onDismiss();
             }}
             className="ml-auto"

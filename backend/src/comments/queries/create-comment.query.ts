@@ -9,5 +9,13 @@ export const CREATE_COMMENT_QUERY = /* cypher */ `
     createdAt: datetime()
   })-[:REPLY_TO]->(t)
 
-  RETURN c { .* } AS comment, author.id AS tweetAuthorId
+  RETURN 
+    c {
+      .*,
+      createdAt: toString(c.createdAt)
+    } AS comment,
+    t {
+      .*,
+      createdAt: toString(t.createdAt)
+    } AS tweet, author, me
 `;

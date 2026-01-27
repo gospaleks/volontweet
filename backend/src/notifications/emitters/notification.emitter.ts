@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import {
   NotificationEvents,
+  TweetCommentedEvent,
   TweetLikedEvent,
   UserFollowedEvent,
 } from '../events/domain-events';
@@ -13,6 +14,10 @@ export class NotificationEmitter {
 
   tweetLiked(event: TweetLikedEvent) {
     this.eventEmitter.emit(NotificationEvents.TWEET_LIKED, event);
+  }
+
+  tweetCommented(event: TweetCommentedEvent) {
+    this.eventEmitter.emit(NotificationEvents.TWEET_COMMENTED, event);
   }
 
   userFollowed(event: UserFollowedEvent) {

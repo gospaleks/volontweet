@@ -33,7 +33,7 @@ const NotificationHeader = ({ notification }: NotificationHeaderProps) => {
           <div>
             <span className="font-bold underline-offset-4 group-hover:underline">
               {getUserFullName(user)}
-            </span>
+            </span>{' '}
             {getNotificationTextByType(notification.type)}
           </div>
 
