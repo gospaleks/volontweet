@@ -226,16 +226,18 @@ export class TweetsService {
     return this.processPagination(result.records, size, page);
   }
 
-  async getTweetById(tweetId: string) {
+  async getTweetById(currentUserId: string, tweetId: string) {
     const result = await this.neo4jService.read(GET_TWEET_BY_ID_QUERY, {
+      currentUserId,
       tweetId,
     });
 
     if (result.records.length === 0) {
-      return null;
+      throw new NotFoundException('Tweet not found');
     }
 
     const tweetRecord = result.records[0].get('t');
+
     return {
       ...tweetRecord,
       createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
@@ -243,6 +245,10 @@ export class TweetsService {
       mentions: tweetRecord.mentionsJson
         ? JSON.parse(tweetRecord.mentionsJson)
         : [],
+      stats: {
+        ...tweetRecord.stats,
+        likesCount: toNum(tweetRecord.stats.likesCount),
+      },
     } as TweetDto;
   }
 

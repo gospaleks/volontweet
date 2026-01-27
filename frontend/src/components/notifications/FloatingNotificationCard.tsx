@@ -1,13 +1,15 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRightIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
 
 import { navigateTo } from '@/lib/navigation';
-import { getNotificationTextByType } from '@/lib/utils';
+import { getAvatarFallback, getNotificationTextByType } from '@/lib/utils';
 
 import type { Notification } from '@/types/notification.types';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { API_ENDPOINTS } from '@/config/endpoints';
 
 type FloatingNotificationCardProps = {
   notification: Notification;
@@ -23,6 +25,8 @@ const NotificationBody = ({
   notification,
   onDismiss,
 }: NotificationBodyProps) => {
+  const queryClient = useQueryClient();
+
   switch (notification.type) {
     case 'TWEET_LIKED': {
       const likedNotification = notification as Notification<'TWEET_LIKED'>;
@@ -44,6 +48,36 @@ const NotificationBody = ({
         </div>
       );
     }
+    case 'TWEET_COMMENTED': {
+      const commentedNotification =
+        notification as Notification<'TWEET_COMMENTED'>;
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          API_ENDPOINTS.COMMENTS_BY_TWEET_ID(
+            commentedNotification.payload.tweet.id,
+          ),
+        ],
+      });
+
+      return (
+        <div className="flex flex-col gap-2">
+          <p className="line-clamp-3 overflow-hidden text-sm text-ellipsis whitespace-pre-wrap">
+            {commentedNotification.payload.comment.content}
+          </p>
+          <Button
+            variant="link"
+            onClick={() => {
+              navigateTo(`/tweets/${commentedNotification.payload.tweet.id}`);
+              onDismiss();
+            }}
+            className="ml-auto"
+          >
+            View tweet <HugeiconsIcon icon={ArrowRightIcon} />
+          </Button>
+        </div>
+      );
+    }
     default:
       return null;
   }
@@ -54,7 +88,6 @@ const FloatingNotificationCard = ({
   onDismiss,
 }: FloatingNotificationCardProps) => {
   const user = notification.payload.actor;
-  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   return (
     <div className="bg-card flex flex-col gap-2 rounded-2xl border p-4 shadow-xl">
@@ -62,7 +95,7 @@ const FloatingNotificationCard = ({
         <div className="flex items-center gap-2">
           <Avatar className="size-10 shrink-0">
             <AvatarImage src={user.avatarUrl} />
-            <AvatarFallback>{avatarFallback}</AvatarFallback>
+            <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
           </Avatar>
 
           <div className="flex flex-col">

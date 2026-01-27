@@ -43,6 +43,7 @@ export const renderTweetContent = (tweet: Tweet) => {
           to={`/users/${mention.value}`}
           key={`${mention.type}-${mention.start}`}
           className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
+          onClick={(e) => e.stopPropagation()}
         >
           @{mention.value}
         </Link>,
@@ -52,6 +53,7 @@ export const renderTweetContent = (tweet: Tweet) => {
         <span
           key={`${mention.type}-${mention.start}`}
           className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
+          onClick={(e) => e.stopPropagation()}
         >
           #{mention.value}
         </span>,

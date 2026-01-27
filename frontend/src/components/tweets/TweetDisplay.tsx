@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { FavouriteIcon } from '@hugeicons/core-free-icons';
+import { Comment01Icon, FavouriteIcon } from '@hugeicons/core-free-icons';
 
-import { formatRelativeDate } from '@/lib/utils';
+import { formatRelativeDate, getAvatarFallback } from '@/lib/utils';
 
 import type { Tweet } from '@/types/tweet.type';
 
@@ -22,16 +22,21 @@ import TweetContent from './TweetContent';
 type TweetDisplayProps = {
   tweet: Tweet;
   apiEndpoint: string;
+  nonClickable?: boolean;
 };
 
-const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
+const TweetDisplay = ({
+  tweet,
+  apiEndpoint,
+  nonClickable = false,
+}: TweetDisplayProps) => {
   const { mutate, isPending } = useToggleLikeTweetMutation(
     tweet.id,
     apiEndpoint,
+    nonClickable,
   );
 
   const user = tweet.author;
-  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   const handleToggleLike = () => {
     mutate();
@@ -42,7 +47,7 @@ const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
       <Link to={`/users/${user.username}`}>
         <Avatar className="size-11 shrink-0">
           <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
         </Avatar>
       </Link>
 
@@ -68,10 +73,15 @@ const TweetDisplay = ({ tweet, apiEndpoint }: TweetDisplayProps) => {
           <TweetDropdownMenu tweet={tweet} apiEndpoint={apiEndpoint} />
         </div>
 
-        <TweetContent tweet={tweet} />
+        <TweetContent tweet={tweet} nonClickable={nonClickable} />
 
-        {/* Actions */}
-        <div className="ml-auto flex items-center">
+        {/* Actions  #1089e3 */}
+        <div className="ml-auto flex items-center gap-4">
+          <div className="group flex items-center gap-2">
+            <HugeiconsIcon icon={Comment01Icon} size={16} />
+            <span>{tweet.stats.commentsCount}</span>
+          </div>
+
           <Tooltip delay={500}>
             <TooltipTrigger
               render={

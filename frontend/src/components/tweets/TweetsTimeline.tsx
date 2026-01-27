@@ -28,7 +28,7 @@ const TweetsTimeline = ({
     isFetchingNextPage,
     isError,
   } = useInfiniteQuery<InfiniteResponse<Tweet>>({
-    queryKey: [apiEndpoint, { size: '10' }],
+    queryKey: [apiEndpoint],
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.nextPage : undefined,

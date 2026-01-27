@@ -87,4 +87,10 @@ export class TweetsController {
     const user = req['user'] as JwtPayload;
     return this.tweetsService.getLikedTweets(user.sub, page, size);
   }
+
+  @Get(':id')
+  async getTweetById(@Param('id') tweetId: string, @Req() req: Request) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.getTweetById(user.sub, tweetId);
+  }
 }

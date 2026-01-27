@@ -9,6 +9,7 @@ export default function UserLikesPage() {
       <Header>
         <H3>Liked tweets</H3>
       </Header>
+
       <TweetsTimeline
         emptyDescription="No liked tweets yet"
         apiEndpoint={API_ENDPOINTS.LIKED_TWEETS}

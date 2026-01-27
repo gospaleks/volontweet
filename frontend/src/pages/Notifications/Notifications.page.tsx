@@ -18,6 +18,7 @@ import Header from '@/components/Header';
 import EmptyState from '@/components/EmptyState';
 import LikeNotification from './components/LikeNotification';
 import FollowNotification from './components/FollowNotification';
+import CommentedNotification from './components/CommentedNotification';
 
 const NotificationsPage = () => {
   const { resetUnread } = useNotificationsActions();
@@ -70,6 +71,15 @@ const NotificationsPage = () => {
                   <LikeNotification
                     key={notification.id}
                     notification={notification as Notification<'TWEET_LIKED'>}
+                  />
+                );
+              case 'TWEET_COMMENTED':
+                return (
+                  <CommentedNotification
+                    key={notification.id}
+                    notification={
+                      notification as Notification<'TWEET_COMMENTED'>
+                    }
                   />
                 );
               case 'USER_FOLLOWED':

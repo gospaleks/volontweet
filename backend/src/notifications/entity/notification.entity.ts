@@ -8,6 +8,7 @@ import {
 
 export enum NotificationType {
   TWEET_LIKED = 'TWEET_LIKED',
+  TWEET_COMMENTED = 'TWEET_COMMENTED',
   USER_FOLLOWED = 'USER_FOLLOWED',
   SYSTEM = 'SYSTEM',
 }
@@ -42,6 +43,8 @@ export class Notification {
   @Column({ default: false })
   isRead: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
   createdAt: Date;
 }

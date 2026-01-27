@@ -1,6 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PencilEdit01Icon } from '@hugeicons/core-free-icons';
 
+import { getAvatarFallback } from '@/lib/utils';
+
 import type { UserDetails } from '@/types/user.types';
 
 import { useChangeAvatar } from '@/hooks/users/useChangeAvatar';
@@ -20,7 +22,7 @@ const UserAvatarCropper = ({ user }: UserAvatarCropperProps) => {
 
   const { mutateAsync } = useChangeAvatar();
 
-  const avatarFallback = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
+  const avatarFallback = getAvatarFallback(user);
 
   const onAvatarCropFinish = async (blob: Blob) => {
     await mutateAsync(blob);

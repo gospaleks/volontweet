@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import type { Tweet } from '@/types/tweet.type';
 
@@ -8,13 +9,27 @@ import { renderTweetContent } from './renderTweetContent';
 
 type TweetContentProps = {
   tweet: Tweet;
+  nonClickable?: boolean;
 };
 
-const TweetContent = ({ tweet }: TweetContentProps) => {
+const TweetContent = ({ tweet, nonClickable = false }: TweetContentProps) => {
+  const navigate = useNavigate();
+
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  const handleClick = () => {
+    if (nonClickable) return;
+
+    const selection = window.getSelection()?.toString().trim();
+    if (selection) return;
+    navigate(`/tweets/${tweet.id}`);
+  };
+
   return (
-    <div className="flex w-full flex-col gap-1">
+    <div
+      className={`flex w-full ${nonClickable ? '' : 'cursor-pointer'} flex-col gap-1`}
+      onClick={handleClick}
+    >
       {/* Text content with hashtags and mentions */}
       <div className="text-base leading-relaxed wrap-break-word">
         {renderTweetContent(tweet)}

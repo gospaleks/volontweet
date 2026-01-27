@@ -6,6 +6,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { Notification, NotificationType } from './entity/notification.entity';
 
 import type {
+  TweetCommentedEvent,
   TweetLikedEvent,
   UserFollowedEvent,
 } from './events/domain-events';
@@ -83,6 +84,39 @@ export class NotificationsService {
           payload: {
             actor: event.actor,
             tweet: event.tweet,
+          },
+          createdAt: saved.createdAt,
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async createFromTweetCommented(event: TweetCommentedEvent) {
+    try {
+      const notification = this.notificationRepository.create({
+        userId: event.targetUserId,
+        type: NotificationType.TWEET_COMMENTED,
+        payload: {
+          actor: event.actor,
+          tweet: event.tweet,
+          comment: event.comment,
+        },
+      });
+
+      const saved = await this.notificationRepository.save(notification);
+
+      await this.redisService.publish<NotificationCreatedEvent>(
+        'notifications',
+        {
+          notificationId: saved.id,
+          userId: saved.userId,
+          type: saved.type,
+          payload: {
+            actor: event.actor,
+            tweet: event.tweet,
+            comment: event.comment,
           },
           createdAt: saved.createdAt,
         },

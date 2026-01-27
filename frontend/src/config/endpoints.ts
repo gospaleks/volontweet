@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   LOGOUT: `/auth/logout`,
 
   TWEETS: '/tweets',
+  TWEET_BY_ID: (tweetId: string) => `/tweets/${tweetId}`,
   TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
   DELETE_TWEET: (tweetId: string) => `/tweets/${tweetId}`,
 
@@ -12,6 +13,10 @@ export const API_ENDPOINTS = {
   FEED_FOR_YOU: '/tweets/feed/for-you', // Infinite scroll (queryParams: page, size)
   TWEETS_FOR_USER: (userId: string) => `/tweets/user/${userId}`, // Infinite scroll (queryParams: page, size)
   LIKED_TWEETS: '/tweets/liked', // Infinite scroll (queryParams: page, size)
+
+  POST_TWEET_COMMENT: (tweetId: string) => `/comments/${tweetId}`,
+  COMMENTS_BY_TWEET_ID: (tweetId: string) => `/comments/${tweetId}`, // Infinite scroll (queryParams: page, size)
+  DELETE_TWEET_COMMENT: (commentId: string) => `/comments/${commentId}`,
 
   TRENDING_HASHTAGS: '/hashtags/trending',
 

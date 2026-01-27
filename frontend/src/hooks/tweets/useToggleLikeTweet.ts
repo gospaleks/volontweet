@@ -15,6 +15,7 @@ type ToggleLikeResponse = {
 export const useToggleLikeTweetMutation = (
   tweetId: string,
   apiEndpoint: string,
+  onlyInvalidate = false,
 ) => {
   const queryClient = useQueryClient();
 
@@ -25,8 +26,20 @@ export const useToggleLikeTweetMutation = (
     },
     {
       onSuccess: ({ isLiked, likesCount }) => {
+        if (onlyInvalidate) {
+          queryClient.invalidateQueries({
+            queryKey: [API_ENDPOINTS.TWEET_BY_ID(tweetId)],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: [API_ENDPOINTS.LIKED_TWEETS],
+          });
+
+          return;
+        }
+
         queryClient.setQueryData<InfiniteData<InfiniteResponse<Tweet>>>(
-          [apiEndpoint, { size: '10' }],
+          [apiEndpoint],
           (oldData) => {
             if (!oldData) return oldData;
 

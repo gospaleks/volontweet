@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
-import { formatRelativeDate, getNotificationTextByType } from '@/lib/utils';
+import {
+  formatRelativeDate,
+  getAvatarFallback,
+  getNotificationTextByType,
+  getUserFullName,
+} from '@/lib/utils';
 
 import type { Notification } from '@/types/notification.types';
 
@@ -12,7 +17,6 @@ type NotificationHeaderProps = {
 
 const NotificationHeader = ({ notification }: NotificationHeaderProps) => {
   const user = notification.payload.actor;
-  const avatarFallback = user.firstName.charAt(0) + user.lastName.charAt(0);
 
   return (
     <div className="flex justify-between gap-2">
@@ -22,14 +26,14 @@ const NotificationHeader = ({ notification }: NotificationHeaderProps) => {
       >
         <Avatar className="size-10 shrink-0">
           <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{avatarFallback}</AvatarFallback>
+          <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col">
           <div>
             <span className="font-bold underline-offset-4 group-hover:underline">
-              {user.firstName} {user.lastName}{' '}
-            </span>
+              {getUserFullName(user)}
+            </span>{' '}
             {getNotificationTextByType(notification.type)}
           </div>
 

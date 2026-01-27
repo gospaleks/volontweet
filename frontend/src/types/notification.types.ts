@@ -1,12 +1,21 @@
 import type { AuthUser } from '@/stores/auth.store';
 import type { Tweet } from './tweet.type';
+import type { Comment } from './comment.types';
 
-export type NotificationType = 'TWEET_LIKED' | 'USER_FOLLOWED';
+export type NotificationType =
+  | 'TWEET_LIKED'
+  | 'USER_FOLLOWED'
+  | 'TWEET_COMMENTED';
 
 type NotificationPayloadByType = {
   TWEET_LIKED: {
     actor: AuthUser;
     tweet: Tweet;
+  };
+  TWEET_COMMENTED: {
+    actor: AuthUser;
+    tweet: Tweet;
+    comment: Comment;
   };
   USER_FOLLOWED: {
     actor: AuthUser;
