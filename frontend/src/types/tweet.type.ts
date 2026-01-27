@@ -23,6 +23,7 @@ export type Tweet = {
   author: AuthUser;
   stats: {
     likesCount: number;
+    commentsCount: number;
     isLikedByMe: boolean;
   };
 };

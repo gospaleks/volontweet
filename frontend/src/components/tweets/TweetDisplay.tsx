@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { FavouriteIcon } from '@hugeicons/core-free-icons';
+import { Comment01Icon, FavouriteIcon } from '@hugeicons/core-free-icons';
 
 import { formatRelativeDate, getAvatarFallback } from '@/lib/utils';
 
@@ -75,8 +75,13 @@ const TweetDisplay = ({
 
         <TweetContent tweet={tweet} nonClickable={nonClickable} />
 
-        {/* Actions */}
-        <div className="ml-auto flex items-center">
+        {/* Actions  #1089e3 */}
+        <div className="ml-auto flex items-center gap-4">
+          <div className="group flex items-center gap-2">
+            <HugeiconsIcon icon={Comment01Icon} size={16} />
+            <span>{tweet.stats.commentsCount}</span>
+          </div>
+
           <Tooltip delay={500}>
             <TooltipTrigger
               render={
