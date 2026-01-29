@@ -1,11 +1,12 @@
+import { API_ENDPOINTS } from '@/config/endpoints';
+
 import TweetsTimeline from '@/components/tweets/TweetsTimeline';
 import Header from '@/components/Header';
-import { API_ENDPOINTS } from '@/config/endpoints';
 import H3 from '@/components/ui/typography/H3';
 
-export default function UserLikesPage() {
+const UserLikesPage = () => {
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <Header>
         <H3>Liked tweets</H3>
       </Header>
@@ -16,4 +17,6 @@ export default function UserLikesPage() {
       />
     </div>
   );
-}
+};
+
+export default UserLikesPage;

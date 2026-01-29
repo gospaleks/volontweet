@@ -17,6 +17,7 @@ import UserFollowsPage from '@/pages/UserFollows';
 import NotificationsPage from '@/pages/Notifications';
 import UserLikesPage from '@/pages/UserLikes';
 import TweetDetailsPage from '@/pages/TweetDetails';
+import HashtagTweetsPage from '@/pages/HashtagTweets';
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
           { path: '/notifications', element: <NotificationsPage /> },
           { path: '/liked', element: <UserLikesPage /> },
           { path: '/tweets/:tweetId', element: <TweetDetailsPage /> },
+          { path: '/hashtags/:hashtag', element: <HashtagTweetsPage /> },
         ],
       },
     ],

@@ -88,6 +88,22 @@ export class TweetsController {
     return this.tweetsService.getLikedTweets(user.sub, page, size);
   }
 
+  @Get('hashtag/:hashtag')
+  async getTweetsByHashtag(
+    @Req() req: Request,
+    @Param('hashtag') hashtag: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+  ) {
+    const user = req['user'] as JwtPayload;
+    return this.tweetsService.getTweetsWithHashtag(
+      user.sub,
+      hashtag,
+      page,
+      size,
+    );
+  }
+
   @Get(':id')
   async getTweetById(@Param('id') tweetId: string, @Req() req: Request) {
     const user = req['user'] as JwtPayload;

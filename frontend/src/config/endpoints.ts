@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
   TWEET_BY_ID: (tweetId: string) => `/tweets/${tweetId}`,
   TOGGLE_LIKE_TWEET: (tweetId: string) => `/tweets/${tweetId}/like`,
   DELETE_TWEET: (tweetId: string) => `/tweets/${tweetId}`,
+  HASHTAG_TWEETS: (hashtag: string) => `/tweets/hashtag/${hashtag}`, // Infinite scroll (queryParams: page, size)
 
   FEED_FOLLOWING: '/tweets/feed/following', // Infinite scroll (queryParams: page, size)
   FEED_FOR_YOU: '/tweets/feed/for-you', // Infinite scroll (queryParams: page, size)

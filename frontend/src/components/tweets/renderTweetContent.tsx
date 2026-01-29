@@ -50,13 +50,14 @@ export const renderTweetContent = (tweet: Tweet) => {
       );
     } else {
       segments.push(
-        <span
+        <Link
+          to={`/hashtags/${mention.value}`}
           key={`${mention.type}-${mention.start}`}
           className="text-primary cursor-pointer font-semibold underline-offset-4 hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
           #{mention.value}
-        </span>,
+        </Link>,
       );
     }
 

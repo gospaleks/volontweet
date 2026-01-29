@@ -24,6 +24,7 @@ import { GET_FOR_YOU_TIMELINE } from './queries/get-for-you-timeline.query';
 import { DELETE_TWEET_QUERY } from './queries/delete-tweet.query';
 import { GET_TWEET_BY_ID_QUERY } from './queries/get-tweet-by-id.query';
 import { GET_LIKED_TWEETS } from './queries/get-liked-tweets.query';
+import { GET_TWEETS_WITH_HASHTAG_QUERY } from './queries/get-tweets-with-hashtag.query';
 
 @Injectable()
 export class TweetsService {
@@ -261,6 +262,25 @@ export class TweetsService {
       skip: this.neo4jService.int(skip),
       internalLimit: this.neo4jService.int(internalLimit),
     });
+    return this.processPagination(result.records, size, page);
+  }
+
+  async getTweetsWithHashtag(
+    currentUserId: string,
+    hashtag: string,
+    page: number,
+    size: number,
+  ) {
+    const internalLimit = size + 1;
+    const skip = (page - 1) * size;
+
+    const result = await this.neo4jService.read(GET_TWEETS_WITH_HASHTAG_QUERY, {
+      currentUserId,
+      hashtag,
+      skip: this.neo4jService.int(skip),
+      internalLimit: this.neo4jService.int(internalLimit),
+    });
+
     return this.processPagination(result.records, size, page);
   }
 
