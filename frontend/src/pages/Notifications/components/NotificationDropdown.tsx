@@ -14,19 +14,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { LoadingSwap } from '@/components/ui/loading-swap';
+
+import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog';
 
 type NotificationDropdownProps = {
   notification: Notification;
@@ -72,32 +62,13 @@ const NotificationDropdown = ({ notification }: NotificationDropdownProps) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive">
-              <HugeiconsIcon icon={Delete02Icon} />
-            </AlertDialogMedia>
-            <AlertDialogTitle>
-              Are you sure you want to delete this notification?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel variant="ghost">No, keep it</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDeleteNotification}
-              disabled={isPending}
-            >
-              <LoadingSwap isLoading={isPending}>Delete</LoadingSwap>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        open={isAlertDialogOpen}
+        onOpenChange={setIsAlertDialogOpen}
+        title="Are you sure you want to delete this notification?"
+        onConfirm={handleDeleteNotification}
+        isLoading={isPending}
+      />
     </>
   );
 };
