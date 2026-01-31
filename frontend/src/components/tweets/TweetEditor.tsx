@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, ImageUploadIcon } from '@hugeicons/core-free-icons';
 
-import type { Mention, TweetData } from '@/types/tweet.type';
+import type { Mention, Tweet, TweetData } from '@/types/tweet.type';
 
 import { Button } from '@/components/ui/button';
 
@@ -35,18 +35,26 @@ type TweetEditorProps = {
   onSubmit: (data: TweetData) => Promise<void>;
   isPending: boolean;
   placeholder?: string;
+  initialTweet?: Tweet;
 };
 
 const TweetEditor = ({
   onSubmit,
   placeholder = "What's happening?",
   isPending,
+  initialTweet,
 }: TweetEditorProps) => {
-  const [content, setContent] = useState('');
-  const [mentions, setMentions] = useState<Mention[]>([]);
+  const [content, setContent] = useState(() => initialTweet?.content ?? '');
+  const [mentions, setMentions] = useState<Mention[]>(
+    () => initialTweet?.mentions ?? [],
+  );
   const [selectedMentionUsernames, setSelectedMentionUsernames] = useState<
     string[]
-  >([]);
+  >(() =>
+    (initialTweet?.mentions ?? [])
+      .filter((m) => m.type === '@')
+      .map((m) => m.value),
+  );
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [mentionTrigger, setMentionTrigger] = useState<MentionTrigger | null>(
     null,
@@ -54,7 +62,10 @@ const TweetEditor = ({
   const [mentionQuery, setMentionQuery] = useState('');
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    () => initialTweet?.imageUrl || null,
+  );
+  const [removeImage, setRemoveImage] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +123,7 @@ const TweetEditor = ({
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(file);
+      setRemoveImage(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -120,9 +132,12 @@ const TweetEditor = ({
     }
   };
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = (markForRemoval = true) => {
     setSelectedImage(null);
     setImagePreview(null);
+    if (markForRemoval && initialTweet?.imageUrl) {
+      setRemoveImage(true);
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -178,19 +193,21 @@ const TweetEditor = ({
       raw: content,
       mentions: filteredMentions,
       image: selectedImage || undefined,
+      removeImage: removeImage ? true : undefined,
     };
 
     await onSubmit?.(tweetData);
     setContent('');
     setMentions([]);
-    handleRemoveImage();
+    setRemoveImage(false);
+    handleRemoveImage(false);
   };
 
   const isSubmitDisabled =
     !content.trim() || content.length > MAX_TWEET_LENGTH || isPending;
 
   return (
-    <div className="flex w-full flex-col gap-4 p-4">
+    <div className="flex w-full flex-col gap-4">
       <InputGroup>
         <InputGroupTextarea
           ref={textareaRef}
@@ -226,7 +243,7 @@ const TweetEditor = ({
             size="icon"
             variant="secondary"
             className="absolute top-2 right-2"
-            onClick={handleRemoveImage}
+            onClick={() => handleRemoveImage()}
           >
             <HugeiconsIcon icon={Cancel01Icon} />
           </Button>
