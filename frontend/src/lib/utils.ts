@@ -40,6 +40,8 @@ export const getNotificationTextByType = (type: Notification['type']) => {
       return 'started following you';
     case 'TWEET_COMMENTED':
       return 'commented on your tweet';
+    case 'USER_MENTIONED':
+      return 'mentioned you in a tweet';
     default:
       return '';
   }

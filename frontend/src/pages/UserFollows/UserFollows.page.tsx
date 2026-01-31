@@ -41,7 +41,6 @@ const UserFollowsPage = () => {
       value === 'followers'
         ? API_ENDPOINTS.USER_FOLLOWERS(username || '')
         : API_ENDPOINTS.USER_FOLLOWING(username || ''),
-      { size: '10' },
     ],
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
