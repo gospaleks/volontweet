@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -19,6 +20,7 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 
 import { TweetsService } from './tweets.service';
 import { CreateTweetDto } from './dto/create-tweet.dto';
+import { UpdateTweetDto } from './dto/update-tweet.dto';
 
 @Controller('tweets')
 export class TweetsController {
@@ -33,6 +35,18 @@ export class TweetsController {
   ) {
     const user = request['user'] as JwtPayload;
     return this.tweetsService.createTweet(user.sub, tweetData, image);
+  }
+
+  @Patch(':id')
+  @UseInterceptors(ImageUploadInterceptor())
+  async updateTweet(
+    @Req() request: Request,
+    @Param('id') tweetId: string,
+    @Body() tweetData: UpdateTweetDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
+    const user = request['user'] as JwtPayload;
+    return this.tweetsService.updateTweet(tweetId, user.sub, tweetData, image);
   }
 
   @Delete(':id')
