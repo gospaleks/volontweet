@@ -4,6 +4,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { toNum } from 'src/common/utils/neo4j-utils';
 import { CLOUDINARY_TWEETS_FOLDER } from 'src/cloudinary/constants';
@@ -16,6 +18,8 @@ import { NotificationEmitter } from 'src/notifications/emitters/notification.emi
 import { TweetDto } from './dto/tweet.dto';
 import { CreateTweetDto, Mention } from './dto/create-tweet.dto';
 import { UpdateTweetDto } from './dto/update-tweet.dto';
+import { Actor } from 'src/notifications/events/domain-events';
+import { User } from 'src/users/entity/user.entity';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
@@ -36,6 +40,7 @@ export class TweetsService {
     private readonly redisService: RedisService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly notificationEmitter: NotificationEmitter,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
   async createTweet(
@@ -86,6 +91,9 @@ export class TweetsService {
         throw new NotFoundException('Author not found');
       }
 
+      const tweetRecord = result.records[0].get('tweet');
+      const authorRecord = result.records[0].get('author');
+
       // Asynchronously update hashtag trending scores in Redis
       if (hashtags.length > 0) {
         Promise.all(
@@ -95,7 +103,16 @@ export class TweetsService {
         ).catch((err) => console.error('Redis update failed', err));
       }
 
-      const tweetRecord = result.records[0].get('tweet');
+      // Asynchronously emit notifications for user mentions
+      if (userMentions.length > 0) {
+        this.emitNotifications(userMentions, authorRecord, {
+          ...tweetRecord,
+          mentions: tweetRecord.mentionsJson
+            ? JSON.parse(tweetRecord.mentionsJson)
+            : [],
+          mentionsJson: undefined,
+        });
+      }
 
       return {
         ...tweetRecord,
@@ -251,6 +268,9 @@ export class TweetsService {
         );
       }
 
+      const tweetRecord = updateResult.records[0].get('t');
+
+      // Asynchronously update hashtag trending scores in Redis
       if (addedHashtags.length > 0 || removedHashtags.length > 0) {
         Promise.all([
           ...addedHashtags.map((tag) =>
@@ -262,7 +282,18 @@ export class TweetsService {
         ]).catch((err) => console.error('Redis update failed', err));
       }
 
-      const tweetRecord = updateResult.records[0].get('t');
+      // Asynchronously emit notifications for new user mentions
+      if (addedMentions.length > 0) {
+        this.emitNotifications(addedMentions, tweetRecord.author, {
+          id: tweetRecord.id,
+          content: tweetRecord.content,
+          mentions: tweetRecord.mentionsJson
+            ? JSON.parse(tweetRecord.mentionsJson)
+            : [],
+          mentionsJson: undefined,
+          ...tweetRecord,
+        });
+      }
 
       return {
         ...tweetRecord,
@@ -432,6 +463,29 @@ export class TweetsService {
     return this.processPagination(result.records, size, page);
   }
 
+  private async emitNotifications(
+    usernames: string[],
+    actor: Actor,
+    tweet: TweetDto,
+  ) {
+    // Get ids of mentioned users
+    const mentionedUsers = await this.userRepository.find({
+      where: usernames.map((username) => ({ username })),
+      select: ['id'],
+    });
+
+    // Emit notification for each mentioned user
+    mentionedUsers.forEach((user) => {
+      if (user.id !== actor.id) {
+        this.notificationEmitter.userMentioned({
+          targetUserId: user.id,
+          actor,
+          tweet,
+        });
+      }
+    });
+  }
+
   private processPagination(records: any[], size: number, page: number) {
     const hasNextPage = records.length > size;
     const data = hasNextPage ? records.slice(0, size) : records;
@@ -441,7 +495,6 @@ export class TweetsService {
 
       return {
         ...tweet,
-        createdAt: new Date(tweet.createdAt.toString()).toISOString(),
         mentions: tweet.mentionsJson ? JSON.parse(tweet.mentionsJson) : [],
         mentionsJson: undefined,
         stats: {

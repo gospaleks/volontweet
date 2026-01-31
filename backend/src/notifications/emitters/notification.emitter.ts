@@ -6,6 +6,7 @@ import {
   TweetCommentedEvent,
   TweetLikedEvent,
   UserFollowedEvent,
+  UserMentionedEvent,
 } from '../events/domain-events';
 
 @Injectable()
@@ -22,5 +23,9 @@ export class NotificationEmitter {
 
   userFollowed(event: UserFollowedEvent) {
     this.eventEmitter.emit(NotificationEvents.USER_FOLLOWED, event);
+  }
+
+  userMentioned(event: UserMentionedEvent) {
+    this.eventEmitter.emit(NotificationEvents.USER_MENTIONED, event);
   }
 }

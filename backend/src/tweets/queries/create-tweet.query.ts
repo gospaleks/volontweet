@@ -29,5 +29,12 @@ export const CREATE_TWEET_QUERY = /* cypher */ `
     MERGE (t)-[:TAGGED_WITH]->(tag)
   )
 
-  RETURN t { .* } as tweet
+  RETURN t { 
+    .*,
+    createdAt: toString(t.createdAt)
+   } as tweet,
+   author {
+    .*,
+    createdAt: toString(author.createdAt)
+   }
 `;

@@ -7,6 +7,7 @@ import {
   type UserFollowedEvent,
   type TweetLikedEvent,
   type TweetCommentedEvent,
+  type UserMentionedEvent,
 } from '../events/domain-events';
 
 @Injectable()
@@ -26,5 +27,10 @@ export class NotificationsListener {
   @OnEvent(NotificationEvents.USER_FOLLOWED)
   async onUserFollowed(event: UserFollowedEvent) {
     await this.notificationsService.createFromUserFollowed(event);
+  }
+
+  @OnEvent(NotificationEvents.USER_MENTIONED)
+  async onUserMentioned(event: UserMentionedEvent) {
+    await this.notificationsService.createFromUserMentioned(event);
   }
 }
