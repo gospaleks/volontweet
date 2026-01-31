@@ -37,7 +37,7 @@ const HomePage = () => {
 
   return (
     <>
-      <div className="border-b">
+      <div className="border-b p-4">
         <TweetEditor onSubmit={handleTweetSubmit} isPending={isPending} />
       </div>
 

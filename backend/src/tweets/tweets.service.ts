@@ -15,6 +15,7 @@ import { NotificationEmitter } from 'src/notifications/emitters/notification.emi
 
 import { TweetDto } from './dto/tweet.dto';
 import { CreateTweetDto, Mention } from './dto/create-tweet.dto';
+import { UpdateTweetDto } from './dto/update-tweet.dto';
 
 import { CREATE_TWEET_QUERY } from './queries/create-tweet.query';
 import { GET_FOLLOWING_TIMELINE } from './queries/get-following-timeline.query';
@@ -25,6 +26,8 @@ import { DELETE_TWEET_QUERY } from './queries/delete-tweet.query';
 import { GET_TWEET_BY_ID_QUERY } from './queries/get-tweet-by-id.query';
 import { GET_LIKED_TWEETS } from './queries/get-liked-tweets.query';
 import { GET_TWEETS_WITH_HASHTAG_QUERY } from './queries/get-tweets-with-hashtag.query';
+import { GET_TWEET_FOR_UPDATE_QUERY } from './queries/get-tweet-for-update.query';
+import { UPDATE_TWEET_QUERY } from './queries/update-tweet.query';
 
 @Injectable()
 export class TweetsService {
@@ -139,6 +142,151 @@ export class TweetsService {
     }
 
     return { message: 'Tweet deleted successfully' };
+  }
+
+  async updateTweet(
+    tweetId: string,
+    currentUserId: string,
+    tweetData: UpdateTweetDto,
+    image?: Express.Multer.File,
+  ) {
+    const { raw, mentionsString, removeImage } = tweetData;
+
+    const mentionsJson = mentionsString;
+    const mentionsParsed: Mention[] = JSON.parse(mentionsString);
+
+    const newUserMentions = mentionsParsed
+      .filter((m) => m.type === '@')
+      .map((m) => m.value);
+    const newHashtags = mentionsParsed
+      .filter((m) => m.type === '#')
+      .map((m) => m.value.toLowerCase());
+
+    const currentTweetResult = await this.neo4jService.read(
+      GET_TWEET_FOR_UPDATE_QUERY,
+      {
+        tweetId,
+        currentUserId,
+      },
+    );
+
+    if (currentTweetResult.records.length === 0) {
+      throw new ForbiddenException(
+        'Tweet not found or you are not authorized to edit it',
+      );
+    }
+
+    const currentTweet = currentTweetResult.records[0].get('tweet');
+    const currentMentionsJson = currentTweet.mentionsJson ?? '[]';
+    let currentMentionsParsed: Mention[] = [];
+
+    try {
+      currentMentionsParsed = currentMentionsJson
+        ? JSON.parse(currentMentionsJson)
+        : [];
+    } catch {
+      currentMentionsParsed = [];
+    }
+
+    const currentUserMentions = currentMentionsParsed
+      .filter((m) => m.type === '@')
+      .map((m) => m.value);
+    const currentHashtags = currentMentionsParsed
+      .filter((m) => m.type === '#')
+      .map((m) => m.value.toLowerCase());
+
+    const currentUserMentionsSet = new Set(currentUserMentions);
+    const newUserMentionsSet = new Set(newUserMentions);
+    const removedMentions = currentUserMentions.filter(
+      (m) => !newUserMentionsSet.has(m),
+    );
+    const addedMentions = newUserMentions.filter(
+      (m) => !currentUserMentionsSet.has(m),
+    );
+
+    const currentHashtagsSet = new Set(currentHashtags);
+    const newHashtagsSet = new Set(newHashtags);
+    const removedHashtags = currentHashtags.filter(
+      (h) => !newHashtagsSet.has(h),
+    );
+    const addedHashtags = newHashtags.filter((h) => !currentHashtagsSet.has(h));
+
+    let imageUrl: string | null = currentTweet.imageUrl ?? null;
+    let imagePublicId: string | null = currentTweet.imagePublicId ?? null;
+    let newImagePublicId: string | null = null;
+
+    try {
+      if (removeImage) {
+        if (currentTweet.imagePublicId) {
+          this.cloudinaryService.deleteImage(currentTweet.imagePublicId);
+        }
+        imageUrl = null;
+        imagePublicId = null;
+      } else if (image) {
+        const uploadResult = await this.cloudinaryService.uploadImage(
+          image.buffer,
+          `${CLOUDINARY_TWEETS_FOLDER}/${tweetId}`,
+        );
+        imageUrl = uploadResult.secure_url;
+        imagePublicId = uploadResult.public_id;
+        newImagePublicId = uploadResult.public_id;
+      }
+
+      const updateResult = await this.neo4jService.write(UPDATE_TWEET_QUERY, {
+        tweetId,
+        currentUserId,
+        raw,
+        mentionsJson,
+        imageUrl,
+        imagePublicId,
+        removedMentions,
+        addedMentions,
+        removedHashtags,
+        addedHashtags,
+      });
+
+      if (updateResult.records.length === 0) {
+        throw new ForbiddenException(
+          'Tweet not found or you are not authorized to edit it',
+        );
+      }
+
+      if (addedHashtags.length > 0 || removedHashtags.length > 0) {
+        Promise.all([
+          ...addedHashtags.map((tag) =>
+            this.redisService.zincrby('hashtags:trending', tag, 1),
+          ),
+          ...removedHashtags.map((tag) =>
+            this.redisService.zincrby('hashtags:trending', tag, -1),
+          ),
+        ]).catch((err) => console.error('Redis update failed', err));
+      }
+
+      const tweetRecord = updateResult.records[0].get('t');
+
+      return {
+        ...tweetRecord,
+        createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
+        mentionsJson: undefined,
+        mentions: tweetRecord.mentionsJson
+          ? JSON.parse(tweetRecord.mentionsJson)
+          : [],
+        stats: {
+          ...tweetRecord.stats,
+          likesCount: toNum(tweetRecord.stats.likesCount),
+        },
+      } as TweetDto;
+    } catch (error) {
+      if (newImagePublicId) {
+        await this.cloudinaryService.deleteImage(newImagePublicId);
+      }
+
+      if (error instanceof ForbiddenException) throw error;
+      console.error('Error updating tweet:', error);
+      throw new InternalServerErrorException(
+        'Failed to update tweet, please try again later',
+      );
+    }
   }
 
   async toggleLike(tweetId: string, userId: string) {

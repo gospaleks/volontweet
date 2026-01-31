@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
@@ -140,7 +141,11 @@ const MentionDropdown = ({
     return null;
   }
 
-  return (
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
     <div
       ref={containerRef}
       className="fixed z-50"
@@ -226,7 +231,8 @@ const MentionDropdown = ({
           </CommandList>
         </Command>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

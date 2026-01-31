@@ -11,6 +11,7 @@ export type TweetData = {
   raw: string;
   mentions: Mention[];
   image?: File;
+  removeImage?: boolean;
 };
 
 export type Tweet = {

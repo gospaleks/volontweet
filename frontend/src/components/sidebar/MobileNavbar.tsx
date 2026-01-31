@@ -1,7 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  HashtagIcon,
   MoreHorizontalIcon,
   UserAdd01Icon,
   UserIcon,
@@ -92,13 +91,6 @@ const MobileNavbar = () => {
                   render={
                     <Link to="/users">
                       <HugeiconsIcon icon={UserAdd01Icon} /> Who to follow
-                    </Link>
-                  }
-                />
-                <DropdownMenuItem
-                  render={
-                    <Link to="/hashtags">
-                      <HugeiconsIcon icon={HashtagIcon} /> Trending topics
                     </Link>
                   }
                 />
