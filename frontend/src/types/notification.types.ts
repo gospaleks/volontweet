@@ -5,7 +5,8 @@ import type { Comment } from './comment.types';
 export type NotificationType =
   | 'TWEET_LIKED'
   | 'USER_FOLLOWED'
-  | 'TWEET_COMMENTED';
+  | 'TWEET_COMMENTED'
+  | 'USER_MENTIONED';
 
 type NotificationPayloadByType = {
   TWEET_LIKED: {
@@ -19,6 +20,10 @@ type NotificationPayloadByType = {
   };
   USER_FOLLOWED: {
     actor: AuthUser;
+  };
+  USER_MENTIONED: {
+    actor: AuthUser;
+    tweet: Tweet;
   };
 };
 

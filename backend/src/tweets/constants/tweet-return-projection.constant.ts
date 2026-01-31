@@ -1,6 +1,7 @@
 export const TWEET_RETURN_PROJECTION = /* cypher */ `
   t {
     .*,
+    createdAt: toString(t.createdAt),
     author: author {
       .id,
       .email,

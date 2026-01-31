@@ -45,7 +45,7 @@ const TweetDropdownMenu = ({ tweet, apiEndpoint }: Props) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { mutate, isPending: isPendingDelete } = useDeleteTweetMutation(
-    tweet.id,
+    tweet,
     apiEndpoint,
   );
   const { mutateAsync, isPending: isPendingUpdate } = useUpdateTweetMutation(

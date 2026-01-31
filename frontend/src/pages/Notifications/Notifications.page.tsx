@@ -66,6 +66,7 @@ const NotificationsPage = () => {
         <div className="flex flex-col">
           {notifications.map((notification) => {
             switch (notification.type) {
+              case 'USER_MENTIONED':
               case 'TWEET_LIKED':
                 return (
                   <LikeNotification

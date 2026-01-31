@@ -9,6 +9,7 @@ import type {
   TweetCommentedEvent,
   TweetLikedEvent,
   UserFollowedEvent,
+  UserMentionedEvent,
 } from './events/domain-events';
 import { NotificationCreatedEvent } from './events/notification-created.event';
 
@@ -146,6 +147,37 @@ export class NotificationsService {
           type: saved.type,
           payload: {
             actor: event.actor,
+          },
+          createdAt: saved.createdAt,
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async createFromUserMentioned(event: UserMentionedEvent) {
+    try {
+      const notification = this.notificationRepository.create({
+        userId: event.targetUserId,
+        type: NotificationType.USER_MENTIONED,
+        payload: {
+          actor: event.actor,
+          tweet: event.tweet,
+        },
+      });
+
+      const saved = await this.notificationRepository.save(notification);
+
+      await this.redisService.publish<NotificationCreatedEvent>(
+        'notifications',
+        {
+          notificationId: saved.id,
+          userId: saved.userId,
+          type: saved.type,
+          payload: {
+            actor: event.actor,
+            tweet: event.tweet,
           },
           createdAt: saved.createdAt,
         },

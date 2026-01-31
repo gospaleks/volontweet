@@ -272,7 +272,7 @@ const TweetEditor = ({
           disabled={isSubmitDisabled}
           className="w-20"
         >
-          {isPending ? <Spinner /> : 'Post'}
+          {isPending ? <Spinner /> : initialTweet ? 'Save' : 'Post'}
         </Button>
       </div>
 

@@ -4,6 +4,7 @@ export const NotificationEvents = {
   TWEET_LIKED: 'tweet.liked',
   TWEET_COMMENTED: 'tweet.commented',
   USER_FOLLOWED: 'user.followed',
+  USER_MENTIONED: 'user.mentioned',
 } as const;
 
 export type TweetLikedEvent = {
@@ -28,7 +29,13 @@ export type UserFollowedEvent = {
   actor: Actor;
 };
 
-type Actor = {
+export type UserMentionedEvent = {
+  targetUserId: string; // user being mentioned
+  actor: Actor;
+  tweet: TweetDto;
+};
+
+export type Actor = {
   id: string;
   firstName: string;
   lastName: string;

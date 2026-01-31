@@ -28,7 +28,8 @@ const NotificationBody = ({
   const queryClient = useQueryClient();
 
   switch (notification.type) {
-    case 'TWEET_LIKED': {
+    case 'TWEET_LIKED':
+    case 'USER_MENTIONED': {
       const likedNotification = notification as Notification<'TWEET_LIKED'>;
       return (
         <div className="flex flex-col gap-2">
@@ -91,7 +92,7 @@ const FloatingNotificationCard = ({
 
   return (
     <div className="bg-card flex flex-col gap-2 rounded-2xl border p-4 shadow-xl">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <Avatar className="size-10 shrink-0">
             <AvatarImage src={user.avatarUrl} />
