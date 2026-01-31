@@ -19,7 +19,7 @@ const RecommendedUser = ({ user, showBio = false }: RecommendedUserProps) => {
   const currentUser = useAuthUser();
 
   return (
-    <div className="flex items-start gap-2">
+    <div className="flex items-start gap-2 border-b pb-4 md:border-none md:pb-0">
       <Link
         to={`/users/${user.username}`}
         className="group flex flex-1 items-start gap-2"
