@@ -13,6 +13,7 @@ import { CLOUDINARY_TWEETS_FOLDER } from 'src/cloudinary/constants';
 import { Neo4jService } from 'nest-neo4j';
 import { RedisService } from 'src/redis/redis.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { PresenceService } from 'src/presence/presence.service';
 import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
 import { TweetDto } from './dto/tweet.dto';
@@ -40,6 +41,7 @@ export class TweetsService {
     private readonly redisService: RedisService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly notificationEmitter: NotificationEmitter,
+    private readonly presenceService: PresenceService,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
@@ -367,7 +369,7 @@ export class TweetsService {
       internalLimit: this.neo4jService.int(internalLimit),
     });
 
-    return this.processPagination(result.records, size, page);
+    return await this.processPagination(result.records, size, page);
   }
 
   async getFollowingTimeline(
@@ -384,7 +386,7 @@ export class TweetsService {
       internalLimit: this.neo4jService.int(internalLimit),
     });
 
-    return this.processPagination(result.records, size, page);
+    return await this.processPagination(result.records, size, page);
   }
 
   async getUserTweets(
@@ -403,7 +405,7 @@ export class TweetsService {
       internalLimit: this.neo4jService.int(internalLimit),
     });
 
-    return this.processPagination(result.records, size, page);
+    return await this.processPagination(result.records, size, page);
   }
 
   async getTweetById(currentUserId: string, tweetId: string) {
@@ -441,7 +443,8 @@ export class TweetsService {
       skip: this.neo4jService.int(skip),
       internalLimit: this.neo4jService.int(internalLimit),
     });
-    return this.processPagination(result.records, size, page);
+
+    return await this.processPagination(result.records, size, page);
   }
 
   async getTweetsWithHashtag(
@@ -460,7 +463,7 @@ export class TweetsService {
       internalLimit: this.neo4jService.int(internalLimit),
     });
 
-    return this.processPagination(result.records, size, page);
+    return await this.processPagination(result.records, size, page);
   }
 
   private async emitNotifications(
@@ -486,11 +489,11 @@ export class TweetsService {
     });
   }
 
-  private processPagination(records: any[], size: number, page: number) {
+  private async processPagination(records: any[], size: number, page: number) {
     const hasNextPage = records.length > size;
     const data = hasNextPage ? records.slice(0, size) : records;
 
-    const mappedData = data.map((record) => {
+    let mappedData = data.map((record) => {
       const tweet = record.get('tweet');
 
       return {
@@ -503,6 +506,11 @@ export class TweetsService {
         },
       };
     });
+
+    mappedData = await this.presenceService.enrichWithPresence(
+      mappedData,
+      (tweet) => tweet.author,
+    );
 
     return {
       data: mappedData,
