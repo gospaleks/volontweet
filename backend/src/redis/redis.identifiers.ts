@@ -1,6 +1,6 @@
 export type RedisKey =
   | 'hashtags:trending'
   | `login_attempts:${string}`
-  | 'global:online_users';
+  | 'users:global_online';
 
-export type RedisChannel = 'notifications' | 'system_announcement';
+export type RedisChannel = 'notifications';
