@@ -83,6 +83,11 @@ export class UsersController {
     return this.usersService.getRecommendedUsers(user.sub, page, size);
   }
 
+  @Get('online-count')
+  getOnlineUsersCount() {
+    return this.usersService.getOnlineUsersCount();
+  }
+
   @Post(':id/follow')
   toggleFollow(@Req() request: Request, @Param('id') targetUserId: string) {
     const user = request['user'] as JwtPayload;

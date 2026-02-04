@@ -9,6 +9,7 @@ import { ILike, Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
+import { PresenceService } from 'src/presence/presence.service';
 
 import { transformNeo4jTypes } from 'src/common/utils/neo4j-utils';
 
@@ -32,6 +33,7 @@ export class UsersService {
     private readonly neo4jService: Neo4jService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly notificationEmitter: NotificationEmitter,
+    private readonly presenceService: PresenceService,
   ) {}
 
   async getUsersConnections(
@@ -69,9 +71,19 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const user = result.records[0].get('user');
+    const user = transformNeo4jTypes(result.records[0].get('user')) as any;
+    const userId = user?.id;
 
-    return transformNeo4jTypes(user);
+    if (typeof userId !== 'string' || userId.length === 0) {
+      return user;
+    }
+
+    const presence = await this.presenceService.getUserPresence(userId);
+
+    return {
+      ...user,
+      ...presence,
+    };
   }
 
   async updateUserInfo(userId: string, updateUserDto: UpdateUserDto) {
@@ -138,7 +150,18 @@ export class UsersService {
       skip: this.neo4jService.int(Math.max(0, skip)),
     });
 
-    return this.processUserPagination(result.records, size, page);
+    const pagination = this.processUserPagination(result.records, size, page);
+
+    pagination.data = await this.presenceService.enrichWithPresence(
+      pagination.data,
+      (user) => user,
+    );
+
+    return pagination;
+  }
+
+  async getOnlineUsersCount() {
+    return this.presenceService.getOnlineUsersCount();
   }
 
   async toggleFollow(followerId: string, followedId: string) {
