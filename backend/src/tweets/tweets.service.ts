@@ -169,7 +169,8 @@ export class TweetsService {
     tweetData: UpdateTweetDto,
     image?: Express.Multer.File,
   ) {
-    const { raw, mentionsString, removeImage } = tweetData;
+    const { raw, mentionsString, removeImage: removeImageString } = tweetData;
+    const removeImage = removeImageString === 'true';
 
     const mentionsJson = mentionsString;
     const mentionsParsed: Mention[] = JSON.parse(mentionsString);

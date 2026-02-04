@@ -8,6 +8,6 @@ export class UpdateTweetDto {
   mentionsString: string;
 
   @IsOptional()
-  @IsBoolean()
-  removeImage?: boolean;
+  @IsString() // form is submited with multipart/form-data so files are of type string | Blob (convert to boolean later)
+  removeImage?: string;
 }
