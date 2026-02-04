@@ -18,19 +18,32 @@ export class RedisService implements OnModuleDestroy {
   private readonly subscriptions = new Map<string, Set<any>>();
 
   constructor(private readonly configService: ConfigService) {
-    const options = this.buildOptions();
-    this.publisher = new Redis(options);
-    this.subscriber = new Redis(options);
+    const isProd = configService.get<string>('NODE_ENV') === 'production';
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+
+    if (isProd && redisUrl) {
+      // Upstash
+      this.publisher = new Redis(redisUrl);
+      this.subscriber = new Redis(redisUrl);
+    } else {
+      // Docker - local
+      const options = this.buildOptions();
+      this.publisher = new Redis(options);
+      this.subscriber = new Redis(options);
+    }
 
     this.wireEvents();
   }
 
   private buildOptions(): RedisOptions {
-    const host = this.configService.get<string>('REDIS_HOST', '127.0.0.1');
-    const port = this.configService.get<number>('REDIS_PORT', 6379);
-    const password = this.configService.get<string>('REDIS_PASSWORD');
-    const db = this.configService.get<number>('REDIS_DB', 0);
-    const useTls = this.configService.get<string>('REDIS_TLS') === 'true';
+    const host = this.configService.get<string>(
+      'LOCAL_REDIS_HOST',
+      '127.0.0.1',
+    );
+    const port = this.configService.get<number>('LOCAL_REDIS_PORT', 6379);
+    const password = this.configService.get<string>('LOCAL_REDIS_PASSWORD');
+    const db = this.configService.get<number>('LOCAL_REDIS_DB', 0);
+    const useTls = this.configService.get<string>('LOCAL_REDIS_TLS') === 'true';
 
     const baseOptions: RedisOptions = {
       host,

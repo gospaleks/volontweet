@@ -16,7 +16,8 @@ import { NotificationCreatedEvent } from './events/notification-created.event';
 @WebSocketGateway({
   namespace: '/notifications',
   cors: {
-    origin: '*',
+    origin: process.env.CORS_ORIGIN?.split(',') ?? 'http://localhost:5173',
+    credentials: true,
   },
 })
 export class NotificationsGateway
@@ -51,6 +52,7 @@ export class NotificationsGateway
 
       this.logger.log(`Socket connected: ${userId}`);
     } catch (error) {
+      this.logger.error(`Auth failed: ${error.message}`);
       socket.disconnect();
     }
   }
