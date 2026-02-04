@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import ImageCropper from '@/components/ImageCropper';
+import UserAvatar from '@/components/common/UserAvatar';
 
 type UserAvatarCropperProps = {
   user: UserDetails;
@@ -31,13 +32,12 @@ const UserAvatarCropper = ({ user }: UserAvatarCropperProps) => {
   // Other users view
   if (currentUser?.id !== user.id) {
     return (
-      <Avatar className="border-background size-32 shrink-0 border-4">
-        <AvatarImage
-          src={user.avatarUrl}
-          alt={`${user.firstName} ${user.lastName} avatar`}
-        />
-        <AvatarFallback>{avatarFallback}</AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        user={user}
+        className="border-background size-32 shrink-0 border-4"
+        avatarSize="size-32"
+        onlineStatusSize="size-6"
+      />
     );
   }
 

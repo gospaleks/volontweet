@@ -13,6 +13,8 @@ export type AuthUser = {
   avatarUrl?: string;
   bannerUrl?: string;
   bio?: string;
+  lastActiveAt?: string;
+  isActive?: boolean;
 };
 
 type AuthState = {

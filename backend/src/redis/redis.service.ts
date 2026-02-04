@@ -132,12 +132,53 @@ export class RedisService implements OnModuleDestroy {
     return this.publisher.zscore(key, member);
   }
 
+  // Get scores for multiple members in a sorted set
+  async zscores(key: RedisKey, members: string[]): Promise<(string | null)[]> {
+    if (members.length === 0) {
+      return [];
+    }
+
+    const pipeline = this.publisher.pipeline();
+    for (const member of members) {
+      pipeline.zscore(key, member);
+    }
+
+    const results = await pipeline.exec();
+    return (results ?? []).map(([error, value]) => {
+      if (error) {
+        return null;
+      }
+      return value as string | null;
+    });
+  }
+
   async zadd(
     key: RedisKey,
     member: string,
     score: number,
   ): Promise<number | string> {
     return this.publisher.zadd(key, score, member);
+  }
+
+  // Removes all elements in the sorted set stored at key with a score between min and max (inclusive)
+  async zremrangebyscore(
+    key: RedisKey,
+    min: number | string,
+    max: number | string,
+  ): Promise<number> {
+    return this.publisher.zremrangebyscore(key, min, max);
+  }
+
+  async zcard(key: RedisKey): Promise<number> {
+    return this.publisher.zcard(key);
+  }
+
+  async zcount(
+    key: RedisKey,
+    min: number | string,
+    max: number | string,
+  ): Promise<number> {
+    return this.publisher.zcount(key, min, max);
   }
 
   async zincrby(key: RedisKey, member: string, increment = 1): Promise<string> {

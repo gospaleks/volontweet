@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Comment01Icon, FavouriteIcon } from '@hugeicons/core-free-icons';
 
-import { formatRelativeDate, getAvatarFallback } from '@/lib/utils';
+import { formatRelativeDate } from '@/lib/utils';
 
 import type { Tweet } from '@/types/tweet.type';
 
@@ -13,11 +13,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 import TweetDropdownMenu from './TweetDropdownMenu';
 import TweetContent from './TweetContent';
+import UserAvatar from '../common/UserAvatar';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -45,10 +45,11 @@ const TweetDisplay = ({
   return (
     <div className="flex gap-4 border-b p-4">
       <Link to={`/users/${user.username}`}>
-        <Avatar className="size-11 shrink-0">
-          <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar
+          user={user}
+          avatarSize="size-11"
+          onlineStatusSize="size-3"
+        />
       </Link>
 
       <div className="flex w-full flex-col gap-1">
