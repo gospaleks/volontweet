@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { Neo4jService } from 'nest-neo4j';
+import { PresenceService } from 'src/presence/presence.service';
 import { NotificationEmitter } from 'src/notifications/emitters/notification.emitter';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -18,6 +19,7 @@ export class CommentsService {
   constructor(
     private readonly neo4jService: Neo4jService,
     private readonly notificationEmitter: NotificationEmitter,
+    private readonly presenceService: PresenceService,
   ) {}
 
   async createComment(
@@ -103,11 +105,11 @@ export class CommentsService {
     }
   }
 
-  private processPagination(records: any[], size: number, page: number) {
+  private async processPagination(records: any[], size: number, page: number) {
     const hasNextPage = records.length > size;
     const paginatedRecords = hasNextPage ? records.slice(0, size) : records;
 
-    const comments = paginatedRecords.map((record) => {
+    let comments = paginatedRecords.map((record) => {
       const comment = record.get('comment');
       const author = record.get('author');
       const isMyComment = record.get('isMyComment');
@@ -118,6 +120,11 @@ export class CommentsService {
         isMyComment,
       };
     });
+
+    comments = await this.presenceService.enrichWithPresence(
+      comments,
+      (c) => c.author,
+    );
 
     return {
       data: comments,
