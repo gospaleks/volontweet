@@ -1,15 +1,11 @@
 import { Link } from 'react-router-dom';
 
-import {
-  formatRelativeDate,
-  getAvatarFallback,
-  getUserFullName,
-} from '@/lib/utils';
+import { formatRelativeDate, getUserFullName } from '@/lib/utils';
 
 import type { Comment } from '@/types/comment.types';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import TweetCommentDropdownMenu from './TweetCommentDropdownMenu';
+import UserAvatar from '../common/UserAvatar';
 
 type TweetCommentItemProps = {
   comment: Comment;
@@ -22,10 +18,11 @@ const TweetCommentItem = ({ comment, tweetId }: TweetCommentItemProps) => {
   return (
     <div className="flex gap-4 border-b p-4">
       <Link to={`/users/${author.username}`}>
-        <Avatar className="size-11 shrink-0">
-          <AvatarImage src={author.avatarUrl} />
-          <AvatarFallback>{getAvatarFallback(author)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar
+          user={author}
+          avatarSize="size-11"
+          onlineStatusSize="size-3"
+        />
       </Link>
 
       <div className="flex w-full flex-col gap-1">

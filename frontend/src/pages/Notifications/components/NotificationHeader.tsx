@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
 import {
   formatRelativeDate,
-  getAvatarFallback,
   getNotificationTextByType,
   getUserFullName,
 } from '@/lib/utils';
 
 import type { Notification } from '@/types/notification.types';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import UserAvatar from '@/components/common/UserAvatar';
 import NotificationDropdown from './NotificationDropdown';
 
 type NotificationHeaderProps = {
@@ -24,10 +23,7 @@ const NotificationHeader = ({ notification }: NotificationHeaderProps) => {
         to={`/users/${user.username}`}
         className="group flex items-center gap-2"
       >
-        <Avatar className="size-10 shrink-0">
-          <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
-        </Avatar>
+        <UserAvatar user={user} />
 
         <div className="flex flex-col">
           <div>

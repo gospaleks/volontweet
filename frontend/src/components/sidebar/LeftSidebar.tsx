@@ -12,7 +12,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 import Logo from '@/components/Logo';
-import UserAvatar from './UserAvatar';
+import CurrentUserAvatar from './CurrentUserAvatar';
 
 const LeftSidebar = () => {
   const user = useAuthUser();
@@ -60,7 +60,7 @@ const LeftSidebar = () => {
       </nav>
 
       <div className="mt-auto">
-        <UserAvatar />
+        <CurrentUserAvatar />
       </div>
     </div>
   );

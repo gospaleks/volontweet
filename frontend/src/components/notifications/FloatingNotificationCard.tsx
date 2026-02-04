@@ -3,13 +3,14 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRightIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
 
 import { navigateTo } from '@/lib/navigation';
-import { getAvatarFallback, getNotificationTextByType } from '@/lib/utils';
+import { getNotificationTextByType } from '@/lib/utils';
+
+import { API_ENDPOINTS } from '@/config/endpoints';
 
 import type { Notification } from '@/types/notification.types';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { API_ENDPOINTS } from '@/config/endpoints';
+import UserAvatar from '@/components/common/UserAvatar';
 
 type FloatingNotificationCardProps = {
   notification: Notification;
@@ -94,10 +95,7 @@ const FloatingNotificationCard = ({
     <div className="bg-card flex flex-col gap-2 rounded-2xl border p-4 shadow-xl">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Avatar className="size-10 shrink-0">
-            <AvatarImage src={user.avatarUrl} />
-            <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} online />
 
           <div className="flex flex-col">
             <div>

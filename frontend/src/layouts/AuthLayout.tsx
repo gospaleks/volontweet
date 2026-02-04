@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet } from 'react-router-dom';
 
 import { useIsAuthenticated } from '@/stores/auth.store';
 
@@ -25,8 +25,16 @@ const AuthLayout = () => {
         <Outlet />
       </div>
 
-      <footer className="text-muted-foreground bg-accent w-full border-t py-4 text-center text-sm">
-        &copy; {new Date().getFullYear()} VolonTweet. All rights reserved.
+      <footer className="text-muted-foreground w-full border-t py-4 text-center text-sm">
+        &copy; {new Date().getFullYear()}{' '}
+        <Link
+          to="https://github.com/gospaleks/volontweet"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary underline underline-offset-4"
+        >
+          VolonTweet
+        </Link>
       </footer>
     </div>
   );

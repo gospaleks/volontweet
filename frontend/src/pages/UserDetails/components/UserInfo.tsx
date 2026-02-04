@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { PencilEdit01Icon } from '@hugeicons/core-free-icons';
+import { Clock01Icon, PencilEdit01Icon } from '@hugeicons/core-free-icons';
+
+import { formatRelativeDate } from '@/lib/utils';
 
 import type { UserDetails } from '@/types/user.types';
 
 import { useAuthUser } from '@/stores/auth.store';
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import H2 from '@/components/ui/typography/H2';
 
 import FollowButton from '@/components/FollowButton';
@@ -57,6 +60,13 @@ const UserInfo = ({ user }: UserInfoProps) => {
           </div>
 
           {user.bio && <p>{user.bio}</p>}
+
+          {user.lastActiveAt && !user.isActive && (
+            <Badge variant="outline">
+              <HugeiconsIcon icon={Clock01Icon} />
+              Active {formatRelativeDate(user.lastActiveAt)}
+            </Badge>
+          )}
 
           <div className="flex items-center gap-4 text-sm">
             <Link

@@ -18,7 +18,7 @@ const TrendingHashtags = () => {
     queryKey: [
       API_ENDPOINTS.TRENDING_HASHTAGS,
       {
-        limit: 15,
+        limit: 10,
       },
     ],
   });

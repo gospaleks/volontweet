@@ -15,7 +15,7 @@ import {
 import { ThemeDropdownMenuItem } from '../ThemeToggle';
 import LogoutDropdownItem from '../LogoutDropdownItem';
 
-const UserAvatar = () => {
+const CurrentUserAvatar = () => {
   const user = useAuthUser();
 
   if (!user) return null;
@@ -23,9 +23,10 @@ const UserAvatar = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="hover:bg-muted dark:hover:bg-muted/50 flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-4xl p-2 transition-colors">
-        <Avatar className="size-9 shrink-0">
+        <Avatar className="relative size-9 shrink-0">
           <AvatarImage src={user.avatarUrl} />
           <AvatarFallback>{getAvatarFallback(user)}</AvatarFallback>
+          <span className="ring-background bg-primary absolute right-0 bottom-0 z-1 size-2 rounded-full ring-2" />
         </Avatar>
 
         <div className="flex min-w-0 flex-1 flex-col text-left text-sm">
@@ -47,4 +48,4 @@ const UserAvatar = () => {
   );
 };
 
-export default UserAvatar;
+export default CurrentUserAvatar;
