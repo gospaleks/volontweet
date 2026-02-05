@@ -176,7 +176,7 @@ export class RedisService implements OnModuleDestroy {
     });
   }
 
-  // Prefer ZMSCORE when supported (single Redis command)
+  // Some Redis clients don't support ZMSCORE, so we have a fallback to multiple ZSCORE calls.
   async zmscore(key: RedisKey, members: string[]): Promise<(string | null)[]> {
     if (members.length === 0) {
       return [];
