@@ -1,79 +1,78 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import ms, { StringValue } from 'ms';
 
 import { RedisService } from 'src/redis/redis.service';
 
 import { UserPresence } from './user-presence.type';
+import {
+  PRESENCE_LAST_ACTIVE_ZSET_KEY,
+  PRESENCE_ONLINE_TTL_SECONDS,
+  presenceOnlineKey,
+} from './presence.config';
 
 @Injectable()
 export class PresenceService {
   private readonly logger = new Logger(PresenceService.name);
-  private readonly globalOnlineKey = 'users:global_online' as const;
 
-  constructor(
-    private readonly redisService: RedisService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly redisService: RedisService) {}
 
-  getActiveWindowMs() {
-    const activeWindow = this.configService.get<StringValue>(
-      'ACTIVE_WINDOW',
-      '2m',
-    );
-
-    return Math.max(1000, ms(activeWindow));
-  }
-
-  getRetentionWindowMs() {
-    const retention = this.configService.get<StringValue>(
-      'PRESENCE_RETENTION',
-      '7d',
-    );
-
-    return Math.max(1000, ms(retention));
-  }
-
-  async touchUserActivity(userId: string) {
+  async markOnline(userId: string): Promise<void> {
     const nowMs = Date.now();
+    const onlineKey = presenceOnlineKey(userId);
 
     try {
-      await this.redisService.zadd(this.globalOnlineKey, userId, nowMs);
-      await this.cleanupOld(nowMs);
-    } catch (error) {
-      this.logger.warn(
-        `Failed to touch presence in Redis for userId=${userId}`,
+      await this.redisService.set(onlineKey, 1, {
+        ttlSeconds: PRESENCE_ONLINE_TTL_SECONDS,
+      });
+
+      await this.redisService.zadd(
+        PRESENCE_LAST_ACTIVE_ZSET_KEY,
+        userId,
+        nowMs,
       );
+    } catch (error) {
+      this.logger.warn(`Failed to mark online in Redis for userId=${userId}`);
     }
   }
 
-  async cleanupOld(nowMs = Date.now()) {
-    const minScore = nowMs - this.getRetentionWindowMs();
-    await this.redisService.zremrangebyscore(
-      this.globalOnlineKey,
-      '-inf',
-      minScore,
-    );
+  async refreshOnline(userId: string): Promise<void> {
+    // Same as markOnline; semantic alias for heartbeats.
+    await this.markOnline(userId);
+  }
+
+  async markOffline(userId: string): Promise<void> {
+    const onlineKey = presenceOnlineKey(userId);
+    try {
+      await this.redisService.del(onlineKey);
+    } catch (error) {
+      this.logger.warn(`Failed to mark offline in Redis for userId=${userId}`);
+    }
   }
 
   async getOnlineUsersCount() {
     const nowMs = Date.now();
+    const minScore = nowMs - PRESENCE_ONLINE_TTL_SECONDS * 1000;
 
-    await this.cleanupOld(nowMs);
-
-    const activeMinScore = nowMs - this.getActiveWindowMs();
     const count = await this.redisService.zcount(
-      this.globalOnlineKey,
-      activeMinScore,
+      PRESENCE_LAST_ACTIVE_ZSET_KEY,
+      minScore,
       '+inf',
     );
 
     return { count };
   }
 
-  async getUserPresence(userId: string) {
-    const score = await this.redisService.zscore(this.globalOnlineKey, userId);
-    return this.calcPresenceFromScore(score);
+  async getUserPresence(userId: string): Promise<UserPresence> {
+    const onlineKey = presenceOnlineKey(userId);
+
+    const [onlineValue, lastActiveScore] = await Promise.all([
+      this.redisService.get<string>(onlineKey),
+      this.redisService.zscore(PRESENCE_LAST_ACTIVE_ZSET_KEY, userId),
+    ]);
+
+    return {
+      isActive: onlineValue !== null,
+      lastActiveAt: this.isoFromScore(lastActiveScore),
+    };
   }
 
   async enrichWithPresence<T>(
@@ -98,14 +97,19 @@ export class PresenceService {
       return items;
     }
 
-    const scores = await this.redisService.zscores(
-      this.globalOnlineKey,
-      userIds,
-    );
+    const onlineKeys = userIds.map((id) => presenceOnlineKey(id));
+
+    const [onlineValues, lastActiveScores] = await Promise.all([
+      this.redisService.mget<string>(onlineKeys),
+      this.redisService.zmscore(PRESENCE_LAST_ACTIVE_ZSET_KEY, userIds),
+    ]);
 
     const presenceMap = new Map<string, UserPresence>();
     userIds.forEach((id, index) => {
-      presenceMap.set(id, this.calcPresenceFromScore(scores[index]));
+      presenceMap.set(id, {
+        isActive: onlineValues[index] !== null,
+        lastActiveAt: this.isoFromScore(lastActiveScores[index]),
+      });
     });
 
     return items.map((item) => {
@@ -125,19 +129,16 @@ export class PresenceService {
     });
   }
 
-  calcPresenceFromScore(score: string | null): UserPresence {
+  private isoFromScore(score: string | null) {
     if (!score) {
-      return { lastActiveAt: null, isActive: false };
+      return null;
     }
 
     const msScore = Number(score);
     if (!Number.isFinite(msScore)) {
-      return { lastActiveAt: null, isActive: false };
+      return null;
     }
 
-    const lastActiveAt = new Date(msScore).toISOString();
-    const isActive = Date.now() - msScore <= this.getActiveWindowMs();
-
-    return { lastActiveAt, isActive };
+    return new Date(msScore).toISOString();
   }
 }

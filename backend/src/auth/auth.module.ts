@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from 'src/redis/redis.module';
-import { UserActivityInterceptor } from 'src/common/interceptors/user-activity.interceptor';
-import { PresenceModule } from 'src/presence/presence.module';
 
 import { User } from '../users/entity/user.entity';
 
@@ -15,7 +13,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { LoginAttemptGuard } from './guards/login-attempt.guard';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RedisModule, PresenceModule],
+  imports: [TypeOrmModule.forFeature([User]), RedisModule],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -24,10 +22,6 @@ import { LoginAttemptGuard } from './guards/login-attempt.guard';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: UserActivityInterceptor,
     },
   ],
 })

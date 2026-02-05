@@ -18,19 +18,32 @@ export class RedisService implements OnModuleDestroy {
   private readonly subscriptions = new Map<string, Set<any>>();
 
   constructor(private readonly configService: ConfigService) {
-    const options = this.buildOptions();
-    this.publisher = new Redis(options);
-    this.subscriber = new Redis(options);
+    const isProd = configService.get<string>('NODE_ENV') === 'production';
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+
+    if (isProd && redisUrl) {
+      // Upstash
+      this.publisher = new Redis(redisUrl);
+      this.subscriber = new Redis(redisUrl);
+    } else {
+      // Docker - local
+      const options = this.buildOptions();
+      this.publisher = new Redis(options);
+      this.subscriber = new Redis(options);
+    }
 
     this.wireEvents();
   }
 
   private buildOptions(): RedisOptions {
-    const host = this.configService.get<string>('REDIS_HOST', '127.0.0.1');
-    const port = this.configService.get<number>('REDIS_PORT', 6379);
-    const password = this.configService.get<string>('REDIS_PASSWORD');
-    const db = this.configService.get<number>('REDIS_DB', 0);
-    const useTls = this.configService.get<string>('REDIS_TLS') === 'true';
+    const host = this.configService.get<string>(
+      'LOCAL_REDIS_HOST',
+      '127.0.0.1',
+    );
+    const port = this.configService.get<number>('LOCAL_REDIS_PORT', 6379);
+    const password = this.configService.get<string>('LOCAL_REDIS_PASSWORD');
+    const db = this.configService.get<number>('LOCAL_REDIS_DB', 0);
+    const useTls = this.configService.get<string>('LOCAL_REDIS_TLS') === 'true';
 
     const baseOptions: RedisOptions = {
       host,
@@ -91,12 +104,23 @@ export class RedisService implements OnModuleDestroy {
     return this.publisher.set(key, payload);
   }
 
-  async get<T>(key: RedisKey): Promise<T | null> {
+  async get<T>(key: RedisKey | string): Promise<T | null> {
     const value = await this.publisher.get(key);
     return this.deserialize<T>(value);
   }
 
-  async del(key: RedisKey): Promise<number> {
+  async mget<T = unknown>(
+    keys: Array<RedisKey | string>,
+  ): Promise<(T | null)[]> {
+    if (keys.length === 0) {
+      return [];
+    }
+
+    const values = await this.publisher.mget(...keys);
+    return values.map((value) => this.deserialize<T>(value));
+  }
+
+  async del(key: RedisKey | string): Promise<number> {
     return this.publisher.del(key);
   }
 
@@ -150,6 +174,27 @@ export class RedisService implements OnModuleDestroy {
       }
       return value as string | null;
     });
+  }
+
+  // Some Redis clients don't support ZMSCORE, so we have a fallback to multiple ZSCORE calls.
+  async zmscore(key: RedisKey, members: string[]): Promise<(string | null)[]> {
+    if (members.length === 0) {
+      return [];
+    }
+
+    const anyPublisher = this.publisher as any;
+    if (typeof anyPublisher.zmscore !== 'function') {
+      return this.zscores(key, members);
+    }
+
+    try {
+      const values = (await anyPublisher.zmscore(key, ...members)) as Array<
+        string | null
+      >;
+      return values;
+    } catch {
+      return this.zscores(key, members);
+    }
   }
 
   async zadd(

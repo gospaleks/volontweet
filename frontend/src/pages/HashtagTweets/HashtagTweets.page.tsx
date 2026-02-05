@@ -18,6 +18,7 @@ const HashtagTweetsPage = () => {
 
       <TweetsTimeline
         apiEndpoint={API_ENDPOINTS.HASHTAG_TWEETS(hashtag || '')}
+        emptyDescription="No tweets found with this hashtag. Be the first to use it!"
       />
     </div>
   );
