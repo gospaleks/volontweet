@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import TweetDropdownMenu from './TweetDropdownMenu';
 import TweetContent from './TweetContent';
 import UserAvatar from '../common/UserAvatar';
+import { useAuthUser } from '@/stores/auth.store';
 
 type TweetDisplayProps = {
   tweet: Tweet;
@@ -30,6 +31,8 @@ const TweetDisplay = ({
   apiEndpoint,
   nonClickable = false,
 }: TweetDisplayProps) => {
+  const currentUser = useAuthUser();
+
   const { mutate, isPending } = useToggleLikeTweetMutation(
     tweet.id,
     apiEndpoint,
@@ -49,6 +52,7 @@ const TweetDisplay = ({
           user={user}
           avatarSize="size-11"
           onlineStatusSize="size-3"
+          online={user.id === currentUser?.id}
         />
       </Link>
 

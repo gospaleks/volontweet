@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { API_ENDPOINTS } from '@/config/endpoints';
@@ -21,6 +22,8 @@ export const FeedType = {
 export type FeedType = (typeof FeedType)[keyof typeof FeedType];
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const { getSearchParam, setSearchParam } = useSearchParams();
 
   const { mutateAsync, isPending } = useCreateTweetMutation();
@@ -29,8 +32,9 @@ const HomePage = () => {
 
   const handleTweetSubmit = async (data: TweetData) => {
     await mutateAsync(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         toast.success('Tweet posted successfully!');
+        navigate(`/tweets/${response.id}`);
       },
     });
   };

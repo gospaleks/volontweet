@@ -104,12 +104,23 @@ export class RedisService implements OnModuleDestroy {
     return this.publisher.set(key, payload);
   }
 
-  async get<T>(key: RedisKey): Promise<T | null> {
+  async get<T>(key: RedisKey | string): Promise<T | null> {
     const value = await this.publisher.get(key);
     return this.deserialize<T>(value);
   }
 
-  async del(key: RedisKey): Promise<number> {
+  async mget<T = unknown>(
+    keys: Array<RedisKey | string>,
+  ): Promise<(T | null)[]> {
+    if (keys.length === 0) {
+      return [];
+    }
+
+    const values = await this.publisher.mget(...keys);
+    return values.map((value) => this.deserialize<T>(value));
+  }
+
+  async del(key: RedisKey | string): Promise<number> {
     return this.publisher.del(key);
   }
 
@@ -163,6 +174,27 @@ export class RedisService implements OnModuleDestroy {
       }
       return value as string | null;
     });
+  }
+
+  // Prefer ZMSCORE when supported (single Redis command)
+  async zmscore(key: RedisKey, members: string[]): Promise<(string | null)[]> {
+    if (members.length === 0) {
+      return [];
+    }
+
+    const anyPublisher = this.publisher as any;
+    if (typeof anyPublisher.zmscore !== 'function') {
+      return this.zscores(key, members);
+    }
+
+    try {
+      const values = (await anyPublisher.zmscore(key, ...members)) as Array<
+        string | null
+      >;
+      return values;
+    } catch {
+      return this.zscores(key, members);
+    }
   }
 
   async zadd(

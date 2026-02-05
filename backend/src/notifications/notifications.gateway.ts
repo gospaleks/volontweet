@@ -4,12 +4,15 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from 'src/redis/redis.service';
+import { PresenceService } from 'src/presence/presence.service';
 
 import { NotificationCreatedEvent } from './events/notification-created.event';
 
@@ -31,6 +34,7 @@ export class NotificationsGateway
   constructor(
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
+    private readonly presenceService: PresenceService,
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -50,6 +54,9 @@ export class NotificationsGateway
       const room = `user:${userId}`;
       socket.join(room);
 
+      // Mark user as active + update lastActiveAt.
+      await this.presenceService.markOnline(userId);
+
       this.logger.log(`Socket connected: ${userId}`);
     } catch (error) {
       this.logger.error(`Auth failed: ${error.message}`);
@@ -60,8 +67,19 @@ export class NotificationsGateway
   handleDisconnect(socket: Socket) {
     const userId = socket.data?.userId;
     if (userId) {
+      void this.presenceService.markOffline(userId);
       this.logger.log(`Socket disconnected: ${userId}`);
     }
+  }
+
+  @SubscribeMessage('heartbeat')
+  async handleHeartbeat(@ConnectedSocket() socket: Socket) {
+    const userId = socket.data?.userId;
+    if (typeof userId === 'string' && userId.length > 0) {
+      await this.presenceService.refreshOnline(userId);
+    }
+
+    return { ok: true };
   }
 
   async afterInit() {

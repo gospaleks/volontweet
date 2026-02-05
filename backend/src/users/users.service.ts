@@ -58,7 +58,7 @@ export class UsersService {
       },
     );
 
-    return this.processUserPagination(result.records, size, page);
+    return await this.processUserPagination(result.records, size, page);
   }
 
   async getUserByUsername(currentUserId: string, username: string) {
@@ -150,14 +150,7 @@ export class UsersService {
       skip: this.neo4jService.int(Math.max(0, skip)),
     });
 
-    const pagination = this.processUserPagination(result.records, size, page);
-
-    pagination.data = await this.presenceService.enrichWithPresence(
-      pagination.data,
-      (user) => user,
-    );
-
-    return pagination;
+    return await this.processUserPagination(result.records, size, page);
   }
 
   async getOnlineUsersCount() {
@@ -287,15 +280,24 @@ export class UsersService {
     }
   }
 
-  private processUserPagination(records: any[], size: number, page: number) {
+  private async processUserPagination(
+    records: any[],
+    size: number,
+    page: number,
+  ) {
     const hasNextPage = records.length > size;
     const data = hasNextPage ? records.slice(0, size) : records;
 
-    const mappedData = data.map((record) => {
+    let mappedData = data.map((record) => {
       const user = record.get('user');
 
       return transformNeo4jTypes(user);
     });
+
+    mappedData = await this.presenceService.enrichWithPresence(
+      mappedData,
+      (user) => user,
+    );
 
     return {
       data: mappedData,

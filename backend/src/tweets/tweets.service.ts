@@ -421,7 +421,7 @@ export class TweetsService {
 
     const tweetRecord = result.records[0].get('t');
 
-    return {
+    const tweet = {
       ...tweetRecord,
       createdAt: new Date(tweetRecord.createdAt.toString()).toISOString(),
       mentionsJson: undefined,
@@ -432,7 +432,11 @@ export class TweetsService {
         ...tweetRecord.stats,
         likesCount: toNum(tweetRecord.stats.likesCount),
       },
-    } as TweetDto;
+    } as any;
+
+    await this.presenceService.enrichWithPresence([tweet], (t) => t.author);
+
+    return tweet;
   }
 
   async getLikedTweets(currentUserId: string, page: number, size: number) {
