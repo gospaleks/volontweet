@@ -15,7 +15,12 @@ You need to have installed:
 
 - Docker Desktop (with Docker Compose support)
 
-### 1) Start the Full System
+### 1) Create .env file
+
+Copy content from .env.example to new file .env in backend directory
+Add provided urls and api keys
+
+### 2) Start the Full System
 
 From the project root folder, run:
 
@@ -34,7 +39,7 @@ This command:
 
 The backend uses **LOCAL** variables (`LOCAL_*`) inside the Docker network, so it connects to Dockerized databases (not cloud services).
 
-### 2) Verify Everything Is Running
+### 3) Verify Everything Is Running
 
 Check container statuses:
 
@@ -48,7 +53,7 @@ Useful URLs after startup:
 - Backend API: http://localhost:3000
 - Neo4j Browser: http://localhost:7474
 
-### 3) Logs (Optional)
+### 4) Logs (Optional)
 
 If you want to follow logs:
 
