@@ -2,14 +2,19 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 
+import { useNotificationsStore } from '@/stores/notifications.store';
+
 export type AuthUser = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
   username: string;
-  createdAt: string;
-  updatedAt: string;
+  avatarUrl?: string;
+  bannerUrl?: string;
+  bio?: string;
+  lastActiveAt?: string;
+  isActive?: boolean;
 };
 
 type AuthState = {
@@ -32,6 +37,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ accessToken: null, user: null });
+        useNotificationsStore.getState().resetUnread();
       },
     }),
     {

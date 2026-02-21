@@ -9,8 +9,15 @@ import PublicRoute from './PublicRoute';
 
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
-import HomePage from '@/pages/HomePage';
+import HomePage from '@/pages/Home';
 import NotFoundPage from '@/pages/NotFoundPage';
+import UsersPage from '@/pages/UsersPage';
+import UserDetailsPage from '@/pages/UserDetails';
+import UserFollowsPage from '@/pages/UserFollows';
+import NotificationsPage from '@/pages/Notifications';
+import UserLikesPage from '@/pages/UserLikes';
+import TweetDetailsPage from '@/pages/TweetDetails';
+import HashtagTweetsPage from '@/pages/HashtagTweets';
 
 export const router = createBrowserRouter([
   {
@@ -30,7 +37,17 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppLayout />,
-        children: [{ path: '/', element: <HomePage /> }],
+        children: [
+          { path: '/', element: <HomePage /> },
+          { path: '/users', element: <UsersPage /> },
+          { path: '/users/:username', element: <UserDetailsPage /> },
+          { path: '/users/:username/followers', element: <UserFollowsPage /> },
+          { path: '/users/:username/following', element: <UserFollowsPage /> },
+          { path: '/notifications', element: <NotificationsPage /> },
+          { path: '/liked', element: <UserLikesPage /> },
+          { path: '/tweets/:tweetId', element: <TweetDetailsPage /> },
+          { path: '/hashtags/:hashtag', element: <HashtagTweetsPage /> },
+        ],
       },
     ],
   },

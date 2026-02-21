@@ -1,0 +1,20 @@
+Zbog pravilnog testiranja odredjenih funkcionalnosti aplikacije potrebno je kreirati bar dva naloga.
+
+Nakon prijave korisnik moze da uredjuje svoj profil (menja ime i prezime, dodaje biografiju, postavi profilnu sliku...).
+Nakon kreiranja tvitova, korisnikovi tvitovi ce biti izlistani u okviru sekcije Profile.
+Na pocetnoj strani aplikacije, korisnik moze da kreira svoj tvit putem editora.
+Prilikom kreiranja tvita, korisnik moze da dodaje hashtags (#), sliku kao i da oznaci druge korisnike (@).
+Tvitovi drugih korisnika se korisniku prikazuju na pocetnoj stranici u okviru For you/Following stranica. 
+
+Prijaviti se u dva browser-a istovremeno na dva razlicita profila.
+Nakon toga sa jednog naloga zapratiti drugi nalog radi demonstriranja sistema za real-time obavestenja kao i pregled online korisnika.
+Na isti nacin se testiraju  drugi oblici notifikacija. Nakon sto jedan korisnik kreira tvit, drugi korisnik moze da ga lajkuje. U trenutku lajkovanja, autor objave automatski dobija obavestenje, bez potrebe za osvezavanjem stranice. Sve notifikacije jednog korisnika ce biti izlistane u okviru sekcije Notifications. 
+
+Korisniku ce u delu Who to follow biti izlistane preporuke novih prijatelja. 
+
+U okviru Liked sekcije nalaze se svi tvitovi koje je korisnik lajkovao. 
+
+Korisnik moze da posecuje profile drugih korisnika i tu ima pregled njihovih tvitova, kao i da preko hastag-ova pristupa tvitovima sa odredjenim hashtag-om.
+
+
+

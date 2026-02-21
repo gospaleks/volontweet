@@ -9,10 +9,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Neo4jService } from 'nest-neo4j';
+import { LoginAttemptLimiterService } from './login-attempt-limiter.service';
 
 import { hashPassword } from 'src/common/security/password';
 import { verifyPassword } from 'src/common/security/password-verification';
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/entity/user.entity';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly neo4jService: Neo4jService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly loginAttemptLimiter: LoginAttemptLimiterService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -51,11 +53,13 @@ export class AuthService {
 
     try {
       await this.neo4jService.write(
-        `CREATE (u:User {id: $id, username: $username, email: $email})`,
+        `CREATE (u:User {id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName})`,
         {
           id: saved.id,
           username: saved.username,
           email: saved.email,
+          firstName: saved.firstName,
+          lastName: saved.lastName,
         },
       );
     } catch (error) {
@@ -68,8 +72,10 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
+    const normalizedEmail = loginDto.email.toLowerCase().trim();
+
     const user = await this.userRepository.findOne({
-      where: { email: loginDto.email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
@@ -82,8 +88,12 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
+      await this.loginAttemptLimiter.registerFailedAttempt(normalizedEmail);
       throw new BadRequestException('Invalid email or password');
     }
+
+    // On success reset login attempts
+    await this.loginAttemptLimiter.reset(normalizedEmail);
 
     const payload: JwtPayload = {
       sub: user.id,

@@ -8,23 +8,18 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-volontweet}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-volontweet}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - volontweet_dev
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: volontweet-pgadmin
-    ports:
-      - "5050:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
     networks:
       - volontweet_dev
 
@@ -36,6 +31,16 @@ services:
       - "7687:7687"
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH:-neo4j/neo4jpassword}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "cypher-shell -u neo4j -p neo4jpassword 'RETURN 1;' >/dev/null 2>&1 || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
     volumes:
       - neo4j_data:/var/lib/neo4j/data
       - neo4j_logs:/var/lib/neo4j/logs
@@ -47,13 +52,78 @@ services:
     container_name: volontweet-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     volumes:
       - redis_data:/var/lib/redis/data
     networks:
       - volontweet_dev
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: volontweet-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      LOCAL_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/volontweet
+      LOCAL_NEO4J_SCHEME: neo4j
+      LOCAL_NEO4J_HOST: neo4j
+      LOCAL_NEO4J_PORT: 7687
+      LOCAL_NEO4J_USERNAME: neo4j
+      LOCAL_NEO4J_PASSWORD: neo4jpassword
+      LOCAL_REDIS_HOST: redis
+      LOCAL_REDIS_PORT: 6379
+      LOCAL_REDIS_DB: 0
+      LOCAL_REDIS_TLS: "false"
+      CORS_ORIGIN: http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://localhost:3000'').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - volontweet_dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000
+    container_name: volontweet-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+    networks:
+      - volontweet_dev
+
 volumes:
-  pgadmin_data:
   postgres_data:
   neo4j_data:
   neo4j_logs:

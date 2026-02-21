@@ -8,6 +8,7 @@ import {
   Post,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
@@ -19,6 +20,8 @@ import { Auth } from './decorators/auth.decorator';
 import { AuthType } from './enums/auth-type.enum';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+
+import { LoginAttemptGuard } from './guards/login-attempt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,6 +42,7 @@ export class AuthController {
   }
 
   @Auth(AuthType.None)
+  @UseGuards(LoginAttemptGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
